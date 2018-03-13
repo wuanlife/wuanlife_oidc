@@ -17,11 +17,16 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// 验证Token完整性接口
-Route::get('/auth','AuthController@verifyToken');
+Route::group([
+    'middleware' => 'authorization',
+], function (){
+    // 验证Token完整性接口
+    Route::get('/auth','AuthController@verifyToken');
 
-// 申请授权接口
-Route::post('/auth','AuthController@getAccessToken');
+    // 申请授权接口
+    Route::post('/auth','AuthController@getAccessToken');
+});
+
 
 // 登录接口
 Route::post('/users/login','UsersController@login');
