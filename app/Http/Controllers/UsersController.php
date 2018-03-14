@@ -67,7 +67,8 @@ class UsersController extends Controller
                     'iss' => 'wuan_oidc',
                     'sub' => $user->email,
                     'aud' => $request->get('aud'),
-                    'nonce' => $request->get('nonce'),]
+                    'nonce' => $request->get('nonce'),
+                ]
             );
 
             // 注册成功，返回重定向信息
@@ -141,9 +142,32 @@ class UsersController extends Controller
         }
     }
 
-    public function getUserInfo($id)
+    /**
+     * 获取用户信息接口
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function getUserInfo($id, Request $request)
     {
+        $id_token = $request->get('id-token');
+        try {
+            if ($id != $id_token->uid) {
+                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
+            }
+            $user = User::find($id);
 
+            return response([
+                'id' => $user['id'],
+                'avatar_url' => $user->avatar->url ?? null,
+                'mail' => $user->email,
+                'name' => $user->name,
+                'sex' => $user->userDetail->sexDetail->sex ?? null,
+                'birthday' => $user->userDetail->birthday ?? null,
+            ], 200);
+        } catch (\Exception $exception) {
+            return response(['error' => $exception->getMessage()], $exception->getCode());
+        }
     }
 
     public function logout()
