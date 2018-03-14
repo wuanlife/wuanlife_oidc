@@ -6,7 +6,7 @@ use Closure;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JwtVerifier;
 
-class AuthMiddleware
+class CheckIdToken
 {
     /**
      * Handle an incoming request.
