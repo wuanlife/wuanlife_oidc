@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group([
-    'middleware' => 'authorization',
+    'middleware' => 'check_id_token',
 ], function (){
     // 验证Token完整性接口
     Route::get('/auth','AuthController@verifyToken');
@@ -28,14 +28,23 @@ Route::group([
 });
 
 
+Route::group([
+    'middleware' => [
+        'check_id_token',
+        'check_access_token',
+    ]
+],function () {
+    // 获取用户信息
+    Route::get('/users/{id}','UsersController@getUserInfo');
+});
+
+
 // 登录接口
 Route::post('/users/login','UsersController@login');
 
 // 注册接口
 Route::post('/users/register','UsersController@register');
 
-// 获取用户信息
-Route::get('/users/{id}','UsersController@getUserInfo');
 
 // 退出登录接口
 Route::post('/users/logout','UsersController@logout');
