@@ -11,35 +11,102 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Validator;
 
 class UsersController extends Controller
 {
 
-    public function register()
+    /**
+     * 注册接口
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function register(Request $request)
     {
+        try {
+            // 验证参数完整性
+            $validator = Validator::make($request->all(),
+                [
+                    'redirect_url' => 'bail|required|url',
+                    'nonce' => 'bail|required',
+                    'aud' => 'bail|required',
+                    'response_type' => 'bail|required',
+                    'client_id' => 'bail|required',
+                    'state' => 'bail|required',
+                    'scope' => 'bail|required',
+                    'name' => 'bail|required|string|alpha_dash',
+                    'email' => 'bail|required|string|email',
+                    'password' => 'bail|required|string|digits_between:6,20|alpha_dash'
 
+                ]);
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors()->first(), 422);
+            } elseif ($a = User::where('email', '=', $request->post('email'))->first()) {
+                throw new \Exception('该邮箱已注册', 400);
+            } elseif (User::where('name', '=', $request->post('name'))->first()) {
+                throw new \Exception('该用户名已被注册', 400);
+            }
+
+            // 注册用户信息
+            $user = User::create([
+                'name' => $request->post('name'),
+                'email' => $request->post('email'),
+                'password' => md5($request->post('password')),
+            ]);
+            if (!$user) {
+                throw new \Exception('创建用户失败', 400);
+            }
+
+            // 获取 Access-Token 和 ID-Token
+            $access_token = JwtVerifier::makeAccessToken($request->only(JwtVerifier::ACCESS_REQUEST_PARAMS));
+            $id_token = JwtVerifier::makeIdToken(
+                [
+                    'uid' => $user->id,
+                    'uname' => $user->name,
+                    'email' => $user->email,
+                    'iss' => 'wuan_oidc',
+                    'sub' => $user->email,
+                    'aud' => $request->get('aud'),
+                    'nonce' => $request->get('nonce'),]
+            );
+
+            // 注册成功，返回重定向信息
+            return redirect()->away(
+                $request->get('redirect_url') .
+                '?Access-Token=' . $access_token .
+                '&ID-Token=' . $id_token
+            );
+
+        } catch (\Exception $exception) {
+            return response(['error' => $exception->getMessage()], $exception->getCode());
+        }
     }
 
+    /**
+     * 登录接口
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
     public function login(Request $request)
     {
         try {
-            // 判断参数完整性
-            if (!$request->filled(
+            // 验证参数完整性
+            $validator = Validator::make($request->all(),
                 [
-                    'email',
-                    'password',
-                    'redirect_uri',
-                    'nonce',
-                    'aud'
-                ])
-            ) {
+                    'redirect_url' => 'bail|required|url',
+                    'nonce' => 'bail|required',
+                    'aud' => 'bail|required',
+                    'email' => 'bail|required|string|email',
+                    'password' => 'bail|required|string|digits_between:6,20|alpha_dash'
 
-                return \response(['error' => '缺少必要的参数']);
+                ]);
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors()->first(), 422);
             }
 
             // 判断用户名和密码是否正确
             $email = $request->post('email');
-            $user = User::select(['id','name', 'email', 'password'])
+            $user = User::select(['id', 'name', 'email', 'password'])
                 ->where('email', '=', $email)
                 ->first();
             if (!$user) {
@@ -64,12 +131,13 @@ class UsersController extends Controller
                 ]
             );
 
+            // 登陆成功，返回重定向请求
             return redirect()->away(
-                $request->get('redirect_uri') . '?ID-Token=' . $token
+                $request->get('redirect_url') . '?ID-Token=' . $token
             );
         } catch (\Exception $exception) {
 
-            return response(['error' => $exception->getMessage()]);
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
