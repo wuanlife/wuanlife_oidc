@@ -21,7 +21,7 @@ Route::group([
     'middleware' => 'check_id_token',
 ], function (){
     // 验证Token完整性接口
-    Route::get('/auth','AuthController@verifyToken');
+    Route::get('/auth','AuthController@verifyToken')->middleware('check_access_token');
 
     // 申请授权接口
     Route::post('/auth','AuthController@getAccessToken');
