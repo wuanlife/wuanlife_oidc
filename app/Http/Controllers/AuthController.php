@@ -16,14 +16,6 @@ class AuthController extends Controller
 
     public const ACCESS_TOKEN_KEY = 'Access_Token';
     public const ID_TOKEN_KEY = 'ID_Token';
-    private const ACCESS_REQUEST_PARAMS =
-        [
-            'response_type',
-            'client_id',
-            'state',
-            'redirect_uri',
-            'scope',
-        ];
 
     /**
      * 验证Token合法性
@@ -53,15 +45,15 @@ class AuthController extends Controller
     public function getAccessToken(Request $request)
     {
         try {
-            if (!$request->filled(self::ACCESS_REQUEST_PARAMS)) {
+            if (!$request->filled(JwtVerifier::ACCESS_REQUEST_PARAMS)) {
                 return \response(['error' => '缺少必要的参数'], 400);
             }
             $access_token = JwtVerifier::makeAccessToken(
-                $request->only(self::ACCESS_REQUEST_PARAMS, 60 * 60 * 24 * 7)
+                $request->only(JwtVerifier::ACCESS_REQUEST_PARAMS), 60 * 60 * 24 * 7
             );
 
             return redirect()->away(
-                $request->get('redirect_uri') . '?Access-Token=' . $access_token
+                $request->get('redirect_url') . '?Access-Token=' . $access_token
             );
         } catch (\Exception $exception) {
             return response(['error' => $exception->getMessage()], 400);

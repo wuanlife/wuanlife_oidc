@@ -9,6 +9,20 @@ class JwtVerifier extends Controller
 {
     public const JWT_KEY = 'wuan_life_liudagejianghualitaipian';
     public const ALGORITHMS = ['HS256'];
+    public const ACCESS_REQUEST_PARAMS =
+        [
+            'response_type',
+            'client_id',
+            'state',
+            'redirect_url',
+            'scope',
+        ];
+    public const ID_REQUEST_PARAMS =
+        [
+            'nonce',
+            'aud',
+            'redirect_url',
+        ];
     private const ACCESS_TOKEN_PARAMS =
         [
             'response_type',
