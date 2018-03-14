@@ -6,7 +6,7 @@ use Closure;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JwtVerifier;
 
-class AuthMiddleware
+class CheckIdToken
 {
     /**
      * Handle an incoming request.
@@ -24,7 +24,8 @@ class AuthMiddleware
                 return \response(['error' => '缺少ID-Token'], 400);
             }
             // 检测 ID-Token 合法性
-            JwtVerifier::verifyToken($id_token, 'ID');
+            $data = JwtVerifier::verifyToken($id_token, 'ID');
+            $request->attributes->add(['id-token' => $data]);
         } catch (\Exception $JWTException) {
             return \response(['error' => $JWTException->getMessage()], 400);
         }

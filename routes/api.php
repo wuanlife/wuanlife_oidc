@@ -18,13 +18,24 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group([
-    'middleware' => 'authorization',
+    'middleware' => 'check_id_token',
 ], function (){
     // 验证Token完整性接口
-    Route::get('/auth','AuthController@verifyToken');
+    Route::get('/auth','AuthController@verifyToken')->middleware('check_access_token');
 
     // 申请授权接口
     Route::post('/auth','AuthController@getAccessToken');
+});
+
+
+Route::group([
+    'middleware' => [
+        'check_id_token',
+        'check_access_token',
+    ]
+],function () {
+    // 获取用户信息
+    Route::get('/users/{id}','UsersController@getUserInfo');
 });
 
 
@@ -34,8 +45,6 @@ Route::post('/users/login','UsersController@login');
 // 注册接口
 Route::post('/users/register','UsersController@register');
 
-// 获取用户信息
-Route::get('/users/{id}','UsersController@getUserInfo');
 
 // 退出登录接口
 Route::post('/users/logout','UsersController@logout');

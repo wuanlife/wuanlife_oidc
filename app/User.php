@@ -17,7 +17,9 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
     ];
 
     /**
@@ -28,6 +30,17 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         //'password', 'remember_token',
     ];
+
+    public function avatar()
+    {
+        return $this->hasOne('App\Avatar', 'user_id', 'id');
+    }
+
+    public function userDetail()
+    {
+        return $this->hasOne('App\UserDetail', 'id', 'id');
+    }
+
 
     public function getJWTIdentifier()
     {

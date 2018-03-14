@@ -9,6 +9,20 @@ class JwtVerifier extends Controller
 {
     public const JWT_KEY = 'wuan_life_liudagejianghualitaipian';
     public const ALGORITHMS = ['HS256'];
+    public const ACCESS_REQUEST_PARAMS =
+        [
+            'response_type',
+            'client_id',
+            'state',
+            'redirect_url',
+            'scope',
+        ];
+    public const ID_REQUEST_PARAMS =
+        [
+            'nonce',
+            'aud',
+            'redirect_url',
+        ];
     private const ACCESS_TOKEN_PARAMS =
         [
             'response_type',
@@ -36,6 +50,7 @@ class JwtVerifier extends Controller
      * 验证 Token 合法性
      * @param $jwt
      * @param $type
+     * @return object
      * @throws \Exception
      */
     public static function verifyToken($jwt, $type)
@@ -57,6 +72,7 @@ class JwtVerifier extends Controller
             }
         }
         self::verifyExp($data->exp);
+        return $data;
     }
 
     /**
