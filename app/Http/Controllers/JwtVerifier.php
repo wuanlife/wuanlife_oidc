@@ -50,6 +50,7 @@ class JwtVerifier extends Controller
      * 验证 Token 合法性
      * @param $jwt
      * @param $type
+     * @return object
      * @throws \Exception
      */
     public static function verifyToken($jwt, $type)
@@ -71,6 +72,7 @@ class JwtVerifier extends Controller
             }
         }
         self::verifyExp($data->exp);
+        return $data;
     }
 
     /**
