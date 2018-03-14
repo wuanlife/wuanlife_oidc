@@ -24,16 +24,16 @@ class AuthController extends Controller
      */
     public function verifyToken(Request $request)
     {
-        $access_token = $request->header(AuthController::ACCESS_TOKEN_KEY);
-        if (!$access_token) {
-            return \response(['error' => '缺少Access-Token'], 400);
-        }
-
-        try {
-            JwtVerifier::verifyToken($access_token, 'Access');
-        } catch (\Exception $JWTException) {
-            return \response(['error' => $JWTException->getMessage()], 400);
-        }
+//        $access_token = $request->header(AuthController::ACCESS_TOKEN_KEY);
+//        if (!$access_token) {
+//            return \response(['error' => '缺少Access-Token'], 400);
+//        }
+//
+//        try {
+//            JwtVerifier::verifyToken($access_token, 'Access');
+//        } catch (\Exception $JWTException) {
+//            return \response(['error' => $JWTException->getMessage()], 400);
+//        }
         return \response(['success' => '验证成功'], 200);
     }
 
