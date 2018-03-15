@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Validator;
 
 class UsersController extends Controller
@@ -112,11 +113,11 @@ class UsersController extends Controller
                 ->first();
             if (!$user) {
 
-                return \response(['error' => '用户不存在'], 400);
+                throw new \Exception('用户不存在', 400);
             }
             if ($user->password != md5($request->post('password'))) {
 
-                return \response(['error' => '密码错误'], 400);
+                throw new \Exception('密码不正确', 400);
             }
 
             // 生成JWT-Token
@@ -138,7 +139,7 @@ class UsersController extends Controller
             );
         } catch (\Exception $exception) {
 
-            return response(['error' => $exception->getMessage()], 400);
+            return response(['error' => $exception->getMessage()], $exception->getCode());
         }
     }
 
@@ -170,9 +171,20 @@ class UsersController extends Controller
         }
     }
 
+    /**
+     * 退出登录接口
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function logout()
     {
+        try {
 
+            return response(['success' => '退出登录成功'], 200)
+                ->withCookie(Cookie::forget('Access-Token'))
+                ->withCookie(Cookie::forget('Access-Token'));
+        } catch (\Exception $exception) {
+            return response(['error' => '退出登录失败'], 400);
+        }
     }
 
 }
