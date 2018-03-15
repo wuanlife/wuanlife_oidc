@@ -64,11 +64,11 @@ class JwtVerifier extends Controller
                 $params = self::ID_TOKEN_PARAMS;
                 break;
             default:
-                throw new \Exception('错误的Token类型');
+                throw new \Exception('错误的Token类型', 400);
         }
         foreach ($params as $item) {
             if (empty($data->$item)) {
-                throw new \Exception($type . '-Token完整性验证失败');
+                throw new \Exception($type . '-Token完整性验证失败', 400);
             }
         }
         self::verifyExp($data->exp);
@@ -88,8 +88,8 @@ class JwtVerifier extends Controller
         $data['exp'] = time() + $exp;
         $params = self::ACCESS_TOKEN_PARAMS;
         foreach ($params as $item) {
-            if (empty($data[$item])){
-                throw new \Exception('缺少必要项：' . $item);
+            if (empty($data[$item])) {
+                throw new \Exception('缺少必要项：' . $item, 400);
             }
             $params[$item] = $data[$item];
         }
@@ -114,15 +114,15 @@ class JwtVerifier extends Controller
 
         $params = self::ID_TOKEN_PARAMS;
         foreach ($params as $item) {
-            if (empty($data[$item])){
-                throw new \Exception('缺少必要项：' . $item);
+            if (empty($data[$item])) {
+                throw new \Exception('缺少必要项：' . $item, 400);
             }
             $params[$item] = $data[$item];
         }
         try {
             return JWT::encode($params, self::JWT_KEY, 'HS256');
         } catch (\Exception $exception) {
-            return response(['error' => '生成Access-Token失败'], 400);
+            throw new \Exception('生成Access-Token失败', 400);
         }
     }
 
@@ -132,8 +132,8 @@ class JwtVerifier extends Controller
      */
     private static function verifyExp($exp)
     {
-        if (time() > $exp){
-            throw new Exception('Token已过期，请重新获取');
+        if (time() > $exp) {
+            throw new Exception('Token已过期，请重新获取', 400);
         }
     }
 
