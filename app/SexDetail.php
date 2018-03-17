@@ -8,4 +8,6 @@ class SexDetail extends Model
 {
     protected $table = 'sex_detail';
     protected $primaryKey = 'id';
+    public $timestamps = false;
+
 }

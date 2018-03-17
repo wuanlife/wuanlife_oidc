@@ -8,9 +8,13 @@ class UserDetail extends Model
 {
     protected $table = 'users_detail';
     protected $primaryKey = 'id';
+    protected $fillable =
+        [
+            'sex',
+            'birthday'
+        ];
+    public $timestamps = false;
 
-    public function sexDetail()
-    {
-        return $this->hasOne('App\SexDetail','id','sex');
-    }
+
+
 }
