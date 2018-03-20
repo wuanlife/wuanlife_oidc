@@ -8,6 +8,7 @@ class UserAuth extends Model
 {
     protected $table = 'users_auth';
     protected $primaryKey = 'id';
+    public $timestamps = false;
 
     public function authDetail()
     {

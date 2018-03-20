@@ -19,10 +19,9 @@ class AuthController extends Controller
 
     /**
      * 验证Token合法性
-     * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function verifyToken(Request $request)
+    public function verifyToken()
     {
         return \response(['success' => '验证成功'], 200);
     }
@@ -36,7 +35,7 @@ class AuthController extends Controller
     {
         try {
             if (!$request->filled(JwtVerifier::ACCESS_REQUEST_PARAMS)) {
-                return \response(['error' => '缺少必要的参数'], 400);
+                throw new \Exception('缺少必要的参数', 400);
             }
             $access_token = JwtVerifier::makeAccessToken(
                 $request->only(JwtVerifier::ACCESS_REQUEST_PARAMS), 60 * 60 * 24 * 7
@@ -46,7 +45,7 @@ class AuthController extends Controller
                 $request->get('redirect_url') . '?Access-Token=' . $access_token
             );
         } catch (\Exception $exception) {
-            return response(['error' => $exception->getMessage()], 400);
+            return response(['error' => $exception->getMessage()], $exception->getCode());
         }
 
     }

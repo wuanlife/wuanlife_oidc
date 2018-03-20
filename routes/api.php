@@ -22,7 +22,6 @@ Route::group([
 ], function (){
     // 验证Token完整性接口
     Route::get('/auth','AuthController@verifyToken')->middleware('check_access_token');
-
     // 申请授权接口
     Route::post('/auth','AuthController@getAccessToken');
 });
@@ -36,16 +35,20 @@ Route::group([
 ],function () {
     // 获取用户信息
     Route::get('/users/{id}','UsersController@getUserInfo');
+    // 修改用户信息
+    Route::put('/users/{id}','UsersController@editorUserInfo');
 });
 
 
-// 登录接口
-Route::post('/users/login','UsersController@login');
+Route::group([
 
-// 注册接口
-Route::post('/users/register','UsersController@register');
+], function (){
+    // 登录接口
+    Route::post('/users/login','UsersController@login');
+    // 注册接口
+    Route::post('/users/register','UsersController@register');
+    // 退出登录接口
+    Route::post('/users/logout','UsersController@logout');
 
-
-// 退出登录接口
-Route::post('/users/logout','UsersController@logout');
+});
 
