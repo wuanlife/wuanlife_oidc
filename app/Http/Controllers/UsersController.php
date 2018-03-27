@@ -58,8 +58,8 @@ class UsersController extends Controller
                 'password' => md5($request->post('password')),
             ]);
             UserDetail::create([
-               'sex' => 'male',
-               'birthday' => '1990-1-1'
+                'sex' => 'male',
+                'birthday' => '1990-1-1'
             ]);
             Avatar::create([
                 'user_id' => $user->id,
@@ -91,7 +91,11 @@ class UsersController extends Controller
             );
 
         } catch (\Exception $exception) {
-            return response(['error' => $exception->getMessage()], $exception->getCode());
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
         }
     }
 
@@ -149,8 +153,11 @@ class UsersController extends Controller
                 $request->get('redirect_url') . '?ID-Token=' . $token
             );
         } catch (\Exception $exception) {
-
-            return response(['error' => $exception->getMessage()], $exception->getCode());
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
         }
     }
 
@@ -170,14 +177,46 @@ class UsersController extends Controller
             $user = User::find($id);
             return response([
                 'id' => $user['id'],
-                'avatar_url' => $user->avatar()->where('delete_flg',0)->first()->url ?? null,
+                'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? null,
                 'mail' => $user->email,
                 'name' => $user->name,
                 'sex' => $user->userDetail->sex ?? null,
                 'birthday' => $user->userDetail->birthday ?? null,
             ], 200);
         } catch (\Exception $exception) {
-            return response(['error' => $exception->getMessage()], $exception->getCode());
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
+        }
+    }
+
+    /**
+     * 向午安应用服务器返回用户信息
+     * @param $id
+     * @param $token
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function responseUserInfoToApp($id, $token)
+    {
+        try {
+            $this->verifyAppToken($token);
+            $user = User::find($id);
+            return response([
+                'id' => $user['id'],
+                'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? null,
+                'mail' => $user->email,
+                'name' => $user->name,
+                'sex' => $user->userDetail->sex ?? null,
+                'birthday' => $user->userDetail->birthday ?? null,
+            ], 200);
+        } catch (\Exception $exception) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
         }
     }
 
@@ -201,32 +240,36 @@ class UsersController extends Controller
                     'sex',
                     'birthday'
                 ]))
-            ){
-                throw new \Exception('没有要修改的内容',400);
+            ) {
+                throw new \Exception('没有要修改的内容', 400);
             }
             if (isset($request->name)) {
                 if (User::where('name', '=', $request->post('name'))->first()) {
                     throw new \Exception('该用户名已被注册', 400);
                 }
-                User::where('id','=',$id)->update(['name'=>$request->name]);
+                User::where('id', '=', $id)->update(['name' => $request->name]);
             }
             if (isset($request->avatar_url)) {
-                Avatar::where('user_id',$id)->where('delete_flg',0)->update(['delete_flg'=>'1']);
-                Avatar::create(['user_id' => $id,'url' => $request->avatar_url]);
+                Avatar::where('user_id', $id)->where('delete_flg', 0)->update(['delete_flg' => '1']);
+                Avatar::create(['user_id' => $id, 'url' => $request->avatar_url]);
             }
             if (isset($request->sex)) {
-                if (!SexDetail::where('id',$request->sex)->first()) {
+                if (!SexDetail::where('id', $request->sex)->first()) {
                     throw new \Exception('非法请求，错误的性别类型', 400);
                 }
-                UserDetail::where('id','=',$id)->update(['sex'=>$request->sex]);
+                UserDetail::where('id', '=', $id)->update(['sex' => $request->sex]);
             }
             if (isset($request->birthday)) {
-                UserDetail::where('id','=',$id)->update(['birthday'=>$request->birthday]);
+                UserDetail::where('id', '=', $id)->update(['birthday' => $request->birthday]);
             }
 
             return response(['success' => '修改成功'], 200);
         } catch (\Exception $exception) {
-            return response(['error' => $exception->getMessage()], $exception->getCode());
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
         }
     }
 
@@ -237,7 +280,6 @@ class UsersController extends Controller
     public function logout()
     {
         try {
-
             return response(['success' => '退出登录成功'], 200)
                 ->withCookie(Cookie::forget('Access-Token'))
                 ->withCookie(Cookie::forget('Access-Token'));
@@ -246,4 +288,18 @@ class UsersController extends Controller
         }
     }
 
+
+    /**
+     * 验证用户的授权token
+     * @param $token
+     * @throws \Exception
+     */
+    private function verifyAppToken($token)
+    {
+        $key = env('WUAN_APP_KEY');
+        $info = explode('.',$token);
+        if (crypt($info[0],$key) == $info[1]){
+            throw new \Exception('无效token',400);
+        }
+    }
 }

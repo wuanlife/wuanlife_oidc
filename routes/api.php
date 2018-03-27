@@ -33,9 +33,9 @@ Route::group([
         'check_access_token',
     ]
 ],function () {
-    // 获取用户信息
+    // 获取用户信息接口
     Route::get('/users/{id}','UsersController@getUserInfo');
-    // 修改用户信息
+    // 修改用户信息接口
     Route::put('/users/{id}','UsersController@editorUserInfo');
 });
 
@@ -49,6 +49,7 @@ Route::group([
     Route::post('/users/register','UsersController@register');
     // 退出登录接口
     Route::post('/users/logout','UsersController@logout');
-
+    // 对午安应用返回用户信息接口
+    Route::get('/users/{id}/{token}','UsersController@responseUserInfoToApp');
 });
 
