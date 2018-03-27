@@ -7,7 +7,6 @@ use Mockery\Exception;
 
 class JwtVerifier extends Controller
 {
-    public const JWT_KEY = 'wuan_life_liudagejianghualitaipian';
     public const ALGORITHMS = ['HS256'];
     public const ACCESS_REQUEST_PARAMS =
         [
@@ -55,7 +54,7 @@ class JwtVerifier extends Controller
      */
     public static function verifyToken($jwt, $type)
     {
-        $data = JWT::decode($jwt, self::JWT_KEY, self::ALGORITHMS);
+        $data = JWT::decode($jwt, env('JWT_KEY'), self::ALGORITHMS);
         switch ($type) {
             case 'Access':
                 $params = self::ACCESS_TOKEN_PARAMS;
@@ -94,7 +93,7 @@ class JwtVerifier extends Controller
             $params[$item] = $data[$item];
         }
         try {
-            return JWT::encode($params, self::JWT_KEY, 'HS256');
+            return JWT::encode($params, env('JWT_KEY'), 'HS256');
         } catch (\Exception $exception) {
             return response(['error' => '生成Access-Token失败'], 400);
         }
@@ -120,7 +119,7 @@ class JwtVerifier extends Controller
             $params[$item] = $data[$item];
         }
         try {
-            return JWT::encode($params, self::JWT_KEY, 'HS256');
+            return JWT::encode($params, env('JWT_KEY'), 'HS256');
         } catch (\Exception $exception) {
             throw new \Exception('生成Access-Token失败', 400);
         }
