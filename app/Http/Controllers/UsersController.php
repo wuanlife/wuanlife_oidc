@@ -195,21 +195,19 @@ class UsersController extends Controller
     /**
      * 向午安应用服务器返回用户信息
      * @param $id
-     * @param $token
+     * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function responseUserInfoToApp($id, $token)
+    public function responseUserInfoToApp($id,Request $request)
     {
         try {
+            $token = $request->get('token');
             $this->verifyAppToken($token);
             $user = User::find($id);
             return response([
                 'id' => $user['id'],
                 'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? null,
-                'mail' => $user->email,
                 'name' => $user->name,
-                'sex' => $user->userDetail->sex ?? null,
-                'birthday' => $user->userDetail->birthday ?? null,
             ], 200);
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
@@ -298,7 +296,10 @@ class UsersController extends Controller
     {
         $key = env('WUAN_APP_KEY');
         $info = explode('.',$token);
-        if (crypt($info[0],$key) == $info[1]){
+        if (count($info) !== 2){
+            throw new \Exception('无效token',400);
+        }
+        if (crypt(base64_decode($info[0]),$key) == base64_decode($info[1])){
             throw new \Exception('无效token',400);
         }
     }

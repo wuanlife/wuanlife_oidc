@@ -50,6 +50,6 @@ Route::group([
     // 退出登录接口
     Route::post('/users/logout','UsersController@logout');
     // 对午安应用返回用户信息接口
-    Route::get('/users/{id}/{token}','UsersController@responseUserInfoToApp');
+    Route::get('/app/users/{id}','UsersController@responseUserInfoToApp');
 });
 
