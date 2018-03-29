@@ -19,11 +19,12 @@ class AuthController extends Controller
 
     /**
      * 验证Token合法性
+     * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function verifyToken()
+    public function verifyToken(Request $request)
     {
-        return \response(['success' => '验证成功'], 200);
+        return \response(['success' => '验证成功','id_token' => $request->get('id-token')], 200);
     }
 
     /**
