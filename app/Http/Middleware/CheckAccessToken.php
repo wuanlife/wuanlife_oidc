@@ -25,7 +25,11 @@ class CheckAccessToken
             $data = JwtVerifier::verifyToken($access_token, 'Access');
             $request->attributes->add(['access-token' => $data]);
         } catch (\Exception $exception) {
-            return \response(['error' => $exception->getMessage()], $exception->getCode());
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
         }
         return $next($request);
     }
