@@ -198,7 +198,7 @@ class UsersController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function responseUserInfoToApp($id,Request $request)
+    public function responseUserInfoToApp($id, Request $request)
     {
         try {
             $token = $request->get('token');
@@ -295,12 +295,12 @@ class UsersController extends Controller
     private function verifyAppToken($token)
     {
         $key = env('WUAN_APP_KEY');
-        $info = explode('.',$token);
-        if (count($info) !== 2){
-            throw new \Exception('无效token',400);
+        $info = explode('.', $token);
+        if (count($info) !== 2) {
+            throw new \Exception('无效token', 400);
         }
-        if (crypt(base64_decode($info[0]),$key) == base64_decode($info[1])){
-            throw new \Exception('无效token',400);
+        if (crypt(base64_decode($info[0]), $key) == base64_decode($info[1])) {
+            throw new \Exception('无效token', 400);
         }
     }
 }
