@@ -63,7 +63,7 @@ class UsersController extends Controller
             ]);
             Avatar::create([
                 'user_id' => $user->id,
-                'url' => ' '
+                'url' => env('AVATAR-URL',' ')
             ]);
             if (!$user) {
                 throw new \Exception('创建用户失败', 400);
@@ -206,7 +206,7 @@ class UsersController extends Controller
             $user = User::find($id);
             return response([
                 'id' => $user['id'],
-                'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? null,
+                'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? env('AVATAR-URL'),
                 'name' => $user->name,
             ], 200);
         } catch (\Exception $exception) {
