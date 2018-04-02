@@ -15,7 +15,7 @@ use App\User;
 use App\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
@@ -195,15 +195,17 @@ class UsersController extends Controller
     /**
      * 向午安应用服务器返回用户信息
      * @param $id
-     * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function responseUserInfoToApp($id, Request $request)
+    public function responseUserInfoToApp($id)
     {
         try {
-            $token = $request->get('token');
-            $this->verifyAppToken($token);
+            //$token = $request->get('token');
+            //$this->verifyAppToken($token);
             $user = User::find($id);
+            if (!$user){
+                throw new \Exception('用户信息不存在',400);
+            }
             return response([
                 'id' => $user['id'],
                 'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? env('AVATAR-URL'),
