@@ -18,7 +18,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group([
-    'middleware' => 'check_id_token',
+    'middleware' => [
+        'check_id_token',
+        'cors',
+    ],
 ], function (){
     // 验证Token完整性接口
     Route::get('/auth','AuthController@verifyToken')->middleware('check_access_token');
@@ -31,6 +34,7 @@ Route::group([
     'middleware' => [
         'check_id_token',
         'check_access_token',
+        'cors',
     ]
 ],function () {
     // 获取用户信息接口
