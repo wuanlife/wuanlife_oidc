@@ -40,7 +40,7 @@ class UsersController extends Controller
                     'scope' => 'bail|required',
                     'name' => 'bail|required|string|alpha_dash',
                     'email' => 'bail|required|string|email',
-                    'password' => 'bail|required|string|digits_between:6,20|alpha_dash'
+                    'password' => 'bail|required|string|between:6,20|alpha_dash'
 
                 ]);
             if ($validator->fails()) {
@@ -114,7 +114,7 @@ class UsersController extends Controller
                     'nonce' => 'bail|required',
                     'aud' => 'bail|required',
                     'email' => 'bail|required|string|email',
-                    'password' => 'bail|required|string|digits_between:6,20|alpha_dash'
+                    'password' => 'bail|required|string|between:6,20|alpha_dash'
 
                 ]);
             if ($validator->fails()) {
