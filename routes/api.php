@@ -22,9 +22,9 @@ Route::group([
         'check_id_token',
     ],
 ], function (){
-    // 验证Token完整性接口
+    // A1 验证Token完整性接口
     Route::get('/auth','AuthController@verifyToken')->middleware('check_access_token');
-    // 申请授权接口
+    // A2 申请授权接口
     Route::post('/auth','AuthController@getAccessToken');
 });
 
@@ -35,9 +35,9 @@ Route::group([
         'check_access_token',
     ]
 ],function () {
-    // 获取用户信息接口
+    // U3 获取用户信息接口
     Route::get('/users/{id}','UsersController@getUserInfo');
-    // 修改用户信息接口
+    // U5 修改用户信息接口
     Route::put('/users/{id}','UsersController@editorUserInfo');
 });
 
@@ -45,13 +45,13 @@ Route::group([
 Route::group([
 
 ], function (){
-    // 登录接口
+    // U1 登录接口
     Route::post('/users/login','UsersController@login');
-    // 注册接口
+    // U2 注册接口
     Route::post('/users/register','UsersController@register');
-    // 退出登录接口
+    // U4 退出登录接口
     Route::post('/users/logout','UsersController@logout');
-    // 对午安应用返回用户信息接口
+    // U6 对午安应用返回用户信息接口
     Route::get('/app/users/{id}','UsersController@responseUserInfoToApp');
 });
 

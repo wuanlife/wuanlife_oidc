@@ -24,7 +24,7 @@ class AuthController extends Controller
      */
     public function verifyToken(Request $request)
     {
-        return \response(['success' => '验证成功','id_token' => $request->get('id-token')], 200);
+        return \response(['success' => '验证成功', 'id_token' => $request->get('id-token')], 200);
     }
 
     /**
@@ -38,13 +38,13 @@ class AuthController extends Controller
             if (!$request->filled(JwtVerifier::ACCESS_REQUEST_PARAMS)) {
                 throw new \Exception('缺少必要的参数', 400);
             }
+
             $access_token = JwtVerifier::makeAccessToken(
-                $request->only(JwtVerifier::ACCESS_REQUEST_PARAMS), 60 * 60 * 24 * 7
+                $request->only(JwtVerifier::ACCESS_REQUEST_PARAMS),
+                60 * 60 * 24 * 7
             );
 
-            return redirect()->away(
-                $request->get('redirect_url') . '?Access-Token=' . $access_token
-            );
+            return response(['Access-Token' => $access_token]);
         } catch (\Exception $exception) {
             return response(['error' => $exception->getMessage()], $exception->getCode());
         }
