@@ -10,23 +10,14 @@ class JwtVerifier extends Controller
     public const ALGORITHMS = ['HS256'];
     public const ACCESS_REQUEST_PARAMS =
         [
-            'response_type',
-            'client_id',
-            'state',
-            'redirect_url',
             'scope',
         ];
     public const ID_REQUEST_PARAMS =
         [
-            'nonce',
-            'aud',
-            'redirect_url',
+
         ];
     private const ACCESS_TOKEN_PARAMS =
         [
-            'response_type',
-            'client_id',
-            'state',
             'scope',
             'exp',
             'iat',
@@ -36,13 +27,12 @@ class JwtVerifier extends Controller
             'uid',
             'uname',
             'email',
-            'iss',
-            'sub',
-            'aud',
             'exp',
             'iat',
             'auth_time',
-            'nonce',
+            'aud',
+            'iss',
+            'sub',
         ];
 
     /**
@@ -111,15 +101,13 @@ class JwtVerifier extends Controller
         $data['auth_time'] = $data['iat'] = time();
         $data['exp'] = time() + $exp;
 
-        $params = self::ID_TOKEN_PARAMS;
-        foreach ($params as $item) {
+        foreach (self::ID_TOKEN_PARAMS as $item) {
             if (empty($data[$item])) {
                 throw new \Exception('缺少必要项：' . $item, 400);
             }
-            $params[$item] = $data[$item];
         }
         try {
-            return JWT::encode($params, env('JWT_KEY'), 'HS256');
+            return JWT::encode($data, env('JWT_KEY'), 'HS256');
         } catch (\Exception $exception) {
             throw new \Exception('生成Access-Token失败', 400);
         }

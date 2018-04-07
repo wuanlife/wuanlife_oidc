@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS users_base
   COMMENT '用户名',
   password  CHAR(32) COLLATE utf8_bin    NOT NULL
   COMMENT '用户密码',
-  created_at TIMESTAMP default CURRENT_TIMESTAMP                    NOT NULL
-  COMMENT '注册时间',
   updated_at TIMESTAMP default CURRENT_TIMESTAMP                    NOT NULL
   COMMENT '修改时间',
+  created_at TIMESTAMP        NOT NULL
+  COMMENT '注册时间',
   PRIMARY KEY (id),
   KEY login_index(email, password),
   UNIQUE KEY (name)
@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS avatar_url
   COLLATE = utf8_bin
   COMMENT ='用户头像url表';
 
-
 -- 用户详细信息表
 -- 储存登陆用的基本信息，日后可扩展一张详细信息表
 CREATE TABLE IF NOT EXISTS users_detail
@@ -58,6 +57,7 @@ CREATE TABLE IF NOT EXISTS sex_detail
   PRIMARY KEY (id),
   KEY sex_detail_index(sex)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='性别对应关系表';
+
 
 -- 用户权限表
 -- 用于实现管理员功能，
