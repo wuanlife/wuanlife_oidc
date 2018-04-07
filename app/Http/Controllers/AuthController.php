@@ -24,7 +24,17 @@ class AuthController extends Controller
      */
     public function verifyToken(Request $request)
     {
-        return \response(['success' => '验证成功', 'id_token' => $request->get('id-token')], 200);
+        try {
+            if ($access_token = $request->header(AuthController::ACCESS_TOKEN_KEY)) {
+                JwtVerifier::verifyToken($access_token, 'Access');
+            }
+            if ($id_token = $request->header(AuthController::ID_TOKEN_KEY)) {
+                JwtVerifier::verifyToken($id_token, 'ID');
+            }
+            return \response(['success' => '验证成功'], 200);
+        } catch (\Exception $exception) {
+            return \response(['error' => $exception->getMessage()], 400);
+        }
     }
 
     /**

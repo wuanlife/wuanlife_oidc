@@ -22,8 +22,6 @@ Route::group([
         'check_id_token',
     ],
 ], function (){
-    // A1 验证Token完整性接口
-    Route::get('/auth','AuthController@verifyToken')->middleware('check_access_token');
     // A2 申请授权接口
     Route::post('/auth','AuthController@getAccessToken');
 });
@@ -45,6 +43,8 @@ Route::group([
 Route::group([
 
 ], function (){
+    // A1 验证Token完整性接口
+    Route::get('/auth','AuthController@verifyToken');
     // U1 登录接口
     Route::post('/users/login','UsersController@login');
     // U2 注册接口
