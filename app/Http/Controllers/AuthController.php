@@ -31,6 +31,9 @@ class AuthController extends Controller
             if ($id_token = $request->header(AuthController::ID_TOKEN_KEY)) {
                 JwtVerifier::verifyToken($id_token, 'ID');
             }
+            if (!$access_token && !$id_token){
+                throw new \Exception ('缺少必要参数');
+            }
             return \response(['success' => '验证成功'], 200);
         } catch (\Exception $exception) {
             return \response(['error' => $exception->getMessage()], 400);
@@ -56,7 +59,7 @@ class AuthController extends Controller
 
             return response(['Access-Token' => $access_token]);
         } catch (\Exception $exception) {
-            return response(['error' => $exception->getMessage()], $exception->getCode());
+            return response(['error' => $exception->getMessage()], 400);
         }
 
     }
