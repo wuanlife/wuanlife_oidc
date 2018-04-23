@@ -44,7 +44,7 @@ class JwtVerifier extends Controller
      */
     public static function verifyToken($jwt, $type)
     {
-        $data = JWT::decode($jwt, env('JWT_KEY'), self::ALGORITHMS);
+        $data = JWT::decode($jwt, env('JWT_SECRET'), self::ALGORITHMS);
         switch ($type) {
             case 'Access':
                 $params = self::ACCESS_TOKEN_PARAMS;
@@ -83,7 +83,7 @@ class JwtVerifier extends Controller
             $params[$item] = $data[$item];
         }
         try {
-            return JWT::encode($params, env('JWT_KEY'), 'HS256');
+            return JWT::encode($params, env('JWT_SECRET'), 'HS256');
         } catch (\Exception $exception) {
             return response(['error' => '生成Access-Token失败'], 400);
         }
@@ -107,7 +107,7 @@ class JwtVerifier extends Controller
             }
         }
         try {
-            return JWT::encode($data, env('JWT_KEY'), 'HS256');
+            return JWT::encode($data, env('JWT_SECRET'), 'HS256');
         } catch (\Exception $exception) {
             throw new \Exception('生成Access-Token失败', 400);
         }
