@@ -205,7 +205,7 @@ class UsersController extends Controller
             }
             return response([
                 'id' => $user['id'],
-                'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? env('AVATAR-URL'),
+                'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? env('AVATAR_URL'),
                 'name' => $user->name,
             ], 200);
         } catch (\Exception $exception) {
