@@ -79,7 +79,7 @@ class UsersController extends Controller
             return
                 response(['ID-Token' => $id_token])
                     ->withCookie(
-                        Cookie::make('ID-Token', $id_token, 60 * 60 * 24 * 7)
+                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
                     );
 
         } catch (\Exception $exception) {
@@ -141,7 +141,7 @@ class UsersController extends Controller
             return
                 response(['ID-Token' => $id_token])
                     ->withCookie(
-                        Cookie::make('ID-Token', $id_token, 60 * 60 * 24 * 7)
+                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
                     );
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
@@ -280,8 +280,8 @@ class UsersController extends Controller
     {
         try {
             return response(['success' => '退出登录成功'], 200)
-                ->withCookie(Cookie::forget('Access-Token'))
-                ->withCookie(Cookie::forget('ID-Token'));
+                ->withCookie(Cookie::forget('wuan-access-token'))
+                ->withCookie(Cookie::forget('wuan-id-token'));
         } catch (\Exception $exception) {
             return response(['error' => '退出登录失败'], 400);
         }
