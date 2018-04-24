@@ -77,10 +77,10 @@ class UsersController extends Controller
 
             // 注册成功，返回重定向信息
             return
-                response(['ID-Token' => $id_token])
-                    ->withCookie(
-                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
-                    );
+                response(['ID-Token' => $id_token]);
+//                    ->withCookie(
+//                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
+//                    );
 
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
@@ -139,10 +139,10 @@ class UsersController extends Controller
 
             // 登陆成功，设置 cookie 并返回重定向请求
             return
-                response(['ID-Token' => $id_token])
-                    ->withCookie(
-                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
-                    );
+                response(['ID-Token' => $id_token]);
+//                    ->withCookie(
+//                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
+//                    );
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
                 return response(['error' => $exception->getMessage()], 400);
