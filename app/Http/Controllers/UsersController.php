@@ -281,7 +281,7 @@ class UsersController extends Controller
         try {
             return response(['success' => '退出登录成功'], 200)
                 ->withCookie(Cookie::forget('Access-Token'))
-                ->withCookie(Cookie::forget('Access-Token'));
+                ->withCookie(Cookie::forget('ID-Token'));
         } catch (\Exception $exception) {
             return response(['error' => '退出登录失败'], 400);
         }
