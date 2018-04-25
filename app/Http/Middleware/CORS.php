@@ -19,7 +19,7 @@ class CORS {
         $response->header('Access-Control-Allow-Origin', '*');
         $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Cookie, Accept, Access-Token, ID-Token');
         $response->header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS, DELETE');
-        $response->header('Access-Control-Allow-Credentials', 'false');
+        $response->header('Access-Control-Allow-Credentials', 'true');
         return $response;
     }
 
