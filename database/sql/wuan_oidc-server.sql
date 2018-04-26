@@ -1,17 +1,17 @@
 -- 用户基础表
 CREATE TABLE IF NOT EXISTS users_base
 (
-  id        INT UNSIGNED AUTO_INCREMENT  NOT NULL
+  id         INT UNSIGNED AUTO_INCREMENT                            NOT NULL
   COMMENT '用户id',
-  email      VARCHAR(30) COLLATE utf8_bin NOT NULL
+  email      VARCHAR(30) COLLATE utf8_bin                           NOT NULL
   COMMENT '用户邮箱',
-  name      CHAR(20) COLLATE utf8_bin    NOT NULL
+  name       CHAR(20) COLLATE utf8_bin                              NOT NULL
   COMMENT '用户名',
-  password  CHAR(32) COLLATE utf8_bin    NOT NULL
+  password   CHAR(32) COLLATE utf8_bin                              NOT NULL
   COMMENT '用户密码',
   updated_at TIMESTAMP default CURRENT_TIMESTAMP                    NOT NULL
   COMMENT '修改时间',
-  created_at TIMESTAMP        NOT NULL
+  created_at TIMESTAMP                                              NOT NULL
   COMMENT '注册时间',
   PRIMARY KEY (id),
   KEY login_index(email, password),
@@ -42,22 +42,34 @@ CREATE TABLE IF NOT EXISTS avatar_url
 -- 储存登陆用的基本信息，日后可扩展一张详细信息表
 CREATE TABLE IF NOT EXISTS users_detail
 (
-  id INT UNSIGNED AUTO_INCREMENT NOT NULL COMMENT '用户id',
-  sex  VARCHAR(20) COLLATE utf8_bin NOT NULL COMMENT '性别(英文)',
-  birthday DATE NOT NULL COMMENT '用户生日',
+  id       INT UNSIGNED AUTO_INCREMENT  NOT NULL
+  COMMENT '用户id',
+  sex      VARCHAR(20) COLLATE utf8_bin NOT NULL
+  COMMENT '性别(英文)',
+  birthday DATE                         NOT NULL
+  COMMENT '用户生日',
   PRIMARY KEY (id)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='用户详细信息表';
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin
+  COMMENT ='用户详细信息表';
 
 -- 性别对应关系表
 -- 储存登陆用的基本信息，日后可扩展一张详细信息表
 CREATE TABLE IF NOT EXISTS sex_detail
 (
-  id VARCHAR(20) COLLATE utf8_bin NOT NULL COMMENT '性别标识(英文)',
-  sex VARCHAR(10) COLLATE utf8_bin NOT NULL COMMENT '性别类型',
+  id  VARCHAR(20) COLLATE utf8_bin NOT NULL
+  COMMENT '性别标识(英文)',
+  sex VARCHAR(10) COLLATE utf8_bin NOT NULL
+  COMMENT '性别类型',
   PRIMARY KEY (id),
   KEY sex_detail_index(sex)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='性别对应关系表';
-
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin
+  COMMENT ='性别对应关系表';
 
 -- 用户权限表
 -- 用于实现管理员功能，

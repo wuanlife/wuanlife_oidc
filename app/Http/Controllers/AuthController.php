@@ -31,7 +31,7 @@ class AuthController extends Controller
             if ($id_token = $request->header(AuthController::ID_TOKEN_KEY)) {
                 JwtVerifier::verifyToken($id_token, 'ID');
             }
-            if (!$access_token && !$id_token){
+            if (!$access_token && !$id_token) {
                 throw new \Exception ('缺少必要参数');
             }
             return \response(['success' => '验证成功'], 200);

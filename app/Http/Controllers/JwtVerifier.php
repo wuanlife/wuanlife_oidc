@@ -65,6 +65,17 @@ class JwtVerifier extends Controller
     }
 
     /**
+     * 验证 JWT 是否过期
+     * @param $exp
+     */
+    private static function verifyExp($exp)
+    {
+        if (time() > $exp) {
+            throw new Exception('Token已过期，请重新获取', 400);
+        }
+    }
+
+    /**
      * 生成 Access-Token
      * @param array $data
      * @param int $exp
@@ -110,17 +121,6 @@ class JwtVerifier extends Controller
             return JWT::encode($data, env('JWT_SECRET'), 'HS256');
         } catch (\Exception $exception) {
             throw new \Exception('生成Access-Token失败', 400);
-        }
-    }
-
-    /**
-     * 验证 JWT 是否过期
-     * @param $exp
-     */
-    private static function verifyExp($exp)
-    {
-        if (time() > $exp) {
-            throw new Exception('Token已过期，请重新获取', 400);
         }
     }
 

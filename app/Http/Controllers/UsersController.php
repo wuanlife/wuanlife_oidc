@@ -9,10 +9,9 @@
 namespace App\Http\Controllers;
 
 
-use App\Avatar;
-use App\SexDetail;
-use App\User;
-use App\UserDetail;
+use App\Models\Users\{
+    Avatar, SexDetail, User, UserDetail
+};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;

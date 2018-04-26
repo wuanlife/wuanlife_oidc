@@ -1,11 +1,12 @@
 <?php
 
-namespace App;
+namespace App\Models\Users;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Avatar extends Model
 {
+    public $timestamps = false;
     protected $table = 'avatar_url';
     protected $primaryKey = 'user_id';
     protected $fillable =
@@ -14,5 +15,4 @@ class Avatar extends Model
             'url',
             'delete_flg'
         ];
-    public $timestamps = false;
 }
