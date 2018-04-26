@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models\Users;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -33,12 +33,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function avatar()
     {
-        return $this->hasOne('App\Avatar', 'user_id', 'id');
+        return $this->hasOne('App\Models\Users\Avatar', 'user_id', 'id');
     }
 
     public function userDetail()
     {
-        return $this->hasOne('App\UserDetail', 'id', 'id');
+        return $this->hasOne('App\Models\Users\UserDetail', 'id', 'id');
     }
 
     public function getJWTIdentifier()

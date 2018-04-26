@@ -18,10 +18,10 @@ class CheckAccessToken
     public function handle($request, Closure $next)
     {
         try {
-        $access_token = $request->header(AuthController::ACCESS_TOKEN_KEY);
-        if (!$access_token) {
-            throw new \Exception('缺少Access-Token', 400);
-        }
+            $access_token = $request->header(AuthController::ACCESS_TOKEN_KEY);
+            if (!$access_token) {
+                throw new \Exception('缺少Access-Token', 400);
+            }
             $data = JwtVerifier::verifyToken($access_token, 'Access');
             $request->attributes->add(['access-token' => $data]);
         } catch (\Exception $exception) {

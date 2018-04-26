@@ -1,13 +1,12 @@
 <?php
 
-namespace App;
+namespace App\Models\Users;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SexDetail extends Model
+class AuthDetail extends Model
 {
-    protected $table = 'sex_detail';
+    protected $table = 'auth_detail';
     protected $primaryKey = 'id';
     public $timestamps = false;
-
 }
