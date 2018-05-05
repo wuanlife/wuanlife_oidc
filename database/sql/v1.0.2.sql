@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users_base
   COMMENT '用户密码',
   updated_at TIMESTAMP default CURRENT_TIMESTAMP                    NOT NULL
   COMMENT '修改时间',
-  created_at TIMESTAMP                                              NOT NULL
+  created_at TIMESTAMP default CURRENT_TIMESTAMP                    NOT NULL
   COMMENT '注册时间',
   PRIMARY KEY (id),
   KEY login_index(email, password),
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS reset_password
   user_id INT UNSIGNED NOT NULL
   COMMENT '用户id',
   token   VARCHAR(255) COLLATE utf8_bin COMMENT '验证token',
-  exp     TIMESTAMP    NOT NULL
+  exp     TIMESTAMP   default CURRENT_TIMESTAMP NOT NULL
   COMMENT '过期时间',
   PRIMARY KEY (user_id)
 )
