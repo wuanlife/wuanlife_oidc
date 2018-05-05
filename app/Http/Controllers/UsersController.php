@@ -10,7 +10,7 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Users\{
-    Avatar, SexDetail, User, UserDetail
+    Avatar, SexDetail, User, UserDetail, WuanScore
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -150,7 +150,32 @@ class UsersController extends Controller
             }
         }
     }
-
+    public function getUserScore($id, Request $request)
+    {
+        $id_token = $request->get('id-token');
+        $as_token = $request->get('access-token');
+        try {
+            if ($id != $id_token->uid) {
+                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
+            }
+            $user = WuanScore::find($id_token->uid);
+            $scope = array_flip(explode(',', $as_token->scope));
+            if (isset($scope['public_profile'])) {
+                return response([
+                    'id'    =>$user['user_id'],
+                    'score' =>$user['score']
+                ], 200);
+            } else {
+                return response([], 200);
+            }
+        } catch (\Exception $exception) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
+        }
+    }
     /**
      * 获取用户信息接口
      * @param $id
@@ -216,6 +241,27 @@ class UsersController extends Controller
         }
     }
 
+    public function putUserScore($id, Request $request)
+    {
+        $id_token = $request->get('id-token');
+        $sub_score = $request->get('sub_score');
+        try{
+            if ($id != $id_token->uid) {
+                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
+            }
+            DB::transaction(function () use ($sub_score, $id_token) {
+                WuanScore::find($id_token->uid)->increment('score', $sub_score);
+            });
+
+        }
+        catch (\Exception $exception){
+            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+                return response(['error' => $exception->getMessage()], 400);
+            } else {
+                return response(['error' => $exception->getMessage()], $exception->getCode());
+            }
+        }
+    }
     /**
      * 修改用户信息接口
      * @param $id
