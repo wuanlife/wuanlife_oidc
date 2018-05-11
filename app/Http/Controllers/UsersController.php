@@ -10,10 +10,11 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Users\{
-    Avatar, SexDetail, User, UserDetail, WuanScore
+    Avatar, SexDetail, User, UserDetail, WuanPoint
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -150,7 +151,7 @@ class UsersController extends Controller
             }
         }
     }
-    public function getUserScore($id, Request $request)
+    public function getUserPoint($id, Request $request)
     {
         $id_token = $request->get('id-token');
         $as_token = $request->get('access-token');
@@ -158,12 +159,12 @@ class UsersController extends Controller
             if ($id != $id_token->uid) {
                 throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
             }
-            $user = WuanScore::find($id_token->uid);
+            $user = WuanPoint::find($id_token->uid);
             $scope = array_flip(explode(',', $as_token->scope));
             if (isset($scope['public_profile'])) {
                 return response([
                     'id'    =>$user['user_id'],
-                    'score' =>$user['score']
+                    'point' =>$user['point']
                 ], 200);
             } else {
                 return response([], 200);
@@ -241,16 +242,19 @@ class UsersController extends Controller
         }
     }
 
-    public function putUserScore($id, Request $request)
+    public function putUserPoint($id, Request $request)
     {
         $id_token = $request->get('id-token');
-        $sub_score = $request->get('sub_score');
+        $sub_point = $request->get('sub_point');
         try{
+            if($id_token!=Crypt::decrypt($request->get('secret'))){
+                throw new \Exception('非法请求来源', 400);
+            }
             if ($id != $id_token->uid) {
                 throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
             }
-            DB::transaction(function () use ($sub_score, $id_token) {
-                WuanScore::find($id_token->uid)->increment('score', $sub_score);
+            DB::transaction(function () use ($sub_point, $id_token) {
+                WuanPoint::find($id_token->uid)->increment('point', $sub_point);
             });
 
         }

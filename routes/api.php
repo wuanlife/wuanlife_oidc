@@ -38,9 +38,9 @@ Route::group([
     // U5 修改用户信息接口
     Route::put('/users/{id}','UsersController@editorUserInfo');
     // 获取午安账号积分接口
-    Route::get('/users/{id}/score','UsersController@getUserScore');
+    Route::get('/users/{id}/point','UsersController@getUserPoint');
     // 兑换午安账号积分接口
-    Route::put('/users/{id}/score','UsersController@putUserScore');
+    Route::put('/users/{id}/point','UsersController@putUserPoint');
 });
 
 
