@@ -123,11 +123,11 @@ CREATE TABLE IF NOT EXISTS reset_password
   COMMENT = '找回密码表';
 
 -- 午安积分表
-CREATE TABLE IF NOT EXISTS wuan_score
+CREATE TABLE IF NOT EXISTS wuan_point
 (
   user_id INT UNSIGNED NOT NULL
   COMMENT '用户id',
-  score INT UNSIGNED NOT NULL DEFAULT 0
+  point INT UNSIGNED NOT NULL DEFAULT 0
   COMMENT '午安积分',
   PRIMARY KEY (user_id)
 )
