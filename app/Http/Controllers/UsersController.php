@@ -9,14 +9,17 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\Users\{
-    Avatar, SexDetail, User, UserDetail, WuanPoint
-};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Points\{
+    PointsOrder, WuanPoint
+};
+use App\Models\Users\{
+    Avatar, SexDetail, User, UserDetail
+};
+use Illuminate\Support\Facades\{
+    Cookie, DB, Validator
+};
+
 
 class UsersController extends Controller
 {
@@ -244,7 +247,7 @@ class UsersController extends Controller
     }
 
     /**
-     * 修改用户积分(内部接口)
+     * 增加用户积分(内部接口)
      * @param $id
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
@@ -259,6 +262,10 @@ class UsersController extends Controller
             }
             DB::transaction(function () use ($sub_point, $id_token) {
                 WuanPoint::find($id_token->uid)->increment('point', $sub_point);
+                PointsOrder::create([
+                    'user_id' => $id_token->uid,
+                    'points_alert' => $sub_point,
+                ]);
             });
 
         } catch (\Exception $exception) {
