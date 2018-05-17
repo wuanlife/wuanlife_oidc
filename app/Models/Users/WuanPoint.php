@@ -15,5 +15,7 @@ class WuanPoint extends Model
     public $timestamps = false;
     protected $table = 'wuan_point';
     protected $primaryKey = 'user_id';
-
+    protected $fillable = [
+        'user_id',
+    ];
 }
