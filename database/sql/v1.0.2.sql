@@ -142,7 +142,7 @@ CREATE TABLE points_order
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id INT UNSIGNED NOT NULL
   COMMENT '用户id',
-  scores_alert  INT NOT NULL
+  points_alert  INT NOT NULL
   COMMENT '午安影视积分',
   created_at TIMESTAMP,
   PRIMARY KEY (id)
