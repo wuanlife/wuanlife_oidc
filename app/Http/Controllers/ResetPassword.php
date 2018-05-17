@@ -24,17 +24,17 @@
             ]);
 
             if($validator->fails()){
-                return response("",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "表单验证失败"],Response::HTTP_BAD_REQUEST);
             }
 
             $email = $request->input("email");
             if($email==null){
-                return response("",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "email不能为空"],Response::HTTP_BAD_REQUEST);
             }
 
             $id = $this->getId($email);
             if($id==-1){
-                return response("",Response::HTTP_BAD_REQUEST);//发送失败，该邮箱尚未注册本网站
+                return response(["error" => "发送失败，该邮箱尚未注册本网站"],Response::HTTP_BAD_REQUEST);
             }
 
             //有效时长取决于env里的EXP常量，单位h
@@ -44,11 +44,16 @@
             $saveFlag = $this->saveResetPassword($id,$token,$exp);
 
             if($saveFlag==true || $saveFlag==1){
-                if($this->send($email,$url)){
+                $sendFlag = $this->send($email,$url);
+                if($sendFlag==1){
                     return response("",Response::HTTP_NO_CONTENT);//发送成功
+                }else if($sendFlag==-1){
+                    return response(["error" => "发送失败try catch未能捕捉的错误"],Response::HTTP_BAD_REQUEST);
+                }else{
+                    return response($saveFlag,Response::HTTP_BAD_REQUEST);
                 }
             }
-            return response("",Response::HTTP_BAD_REQUEST);
+            return response("邮件尚未发送，保存到找回密码表出错",Response::HTTP_BAD_REQUEST);
         }
 
         /**
@@ -62,19 +67,19 @@
             ]);
 
             if($validator->fails()){
-                return response("",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "表单验证失败"],Response::HTTP_BAD_REQUEST);
             }
 
             $token = $request->input("token");
             if($token==null){
-                return response("",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "token不能为空"],Response::HTTP_BAD_REQUEST);
             }
             $resetPassword = new \App\Models\ResetPwd\ResetPassword();
             $buffer = $resetPassword->getMeassageByToken($token);
             if($buffer!=null && strtotime($buffer->exp)>time()){
                 return response("",Response::HTTP_NO_CONTENT);//未过期
             }else{
-                return response("aa",Response::HTTP_BAD_REQUEST);//已过期
+                return response(["error" => "验证失败"],Response::HTTP_BAD_REQUEST);//已过期
             }
         }
 
@@ -92,13 +97,13 @@
             ]);
 
             if($validator->fails()){
-                return response("",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "表单验证失败"],Response::HTTP_BAD_REQUEST);
             }
 
             $token = $request->input("token");
             $password = $request->input("PassWord");
             if($id==null || $token==null || $password==null){
-                return response("",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "参数不能为空"],Response::HTTP_BAD_REQUEST);
             }
 
             $usersBase = new UsersBase();
@@ -108,9 +113,11 @@
             if($buffer!=null && $buffer->token==$token){
                 if($usersBase->resetPasswordById($id,md5($password))==true){
                     return response("",Response::HTTP_NO_CONTENT);//修改成功
+                }else{
+                    return response(["error" => "重置失败"],Response::HTTP_BAD_REQUEST);
                 }
             }
-            return response("",Response::HTTP_BAD_REQUEST);//修改失败
+            return response(["error" => "未能修改可能是token错误或该用户不存在"],Response::HTTP_BAD_REQUEST);//修改失败
         }
 
         /**
@@ -127,14 +134,14 @@
                 'id-token' => 'filled'
             ]);
             if($validator->fails()){
-                return response("",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "表单验证失败"],Response::HTTP_BAD_REQUEST);
             }
 
             $password = $request->input("password");
             $newPassword = $request->input("new_password");
             $idToken = $request->get("filled");
             if($id==null || $password==null || $newPassword==null || $id=!$idToken->uid){
-                return response("sss",Response::HTTP_BAD_REQUEST);
+                return response(["error" => "参数不能为空"],Response::HTTP_BAD_REQUEST);
             }
 
             $userBase = new UsersBase();
@@ -142,7 +149,7 @@
             if($userBase->modifyPasswordById($id,md5($password),md5($newPassword))>0){
                 return response("",Response::HTTP_NO_CONTENT);//修改成功
             }
-            return response("",Response::HTTP_BAD_REQUEST);//修改失败
+            return response(["error" => "修改失败"],Response::HTTP_BAD_REQUEST);//修改失败
         }
 
         /**
@@ -203,7 +210,7 @@
                     $message ->to($email)->subject(env('EMAIL_TITLE'));
                 });
             }catch(Exception $error) {
-                echo 'Message: ' .$error->getMessage();
+                return ["error" => "邮件发送失败".$error->getMessage()];
             }
 
             //$flag的值为FALSE||null的时候发送成功
