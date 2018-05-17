@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS wuan_points
   COMMENT = '午安积分表';
 
   -- 积分兑换记录表
-CREATE TABLE scores_order
+CREATE TABLE points_order
 (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id INT UNSIGNED NOT NULL
