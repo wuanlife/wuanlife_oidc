@@ -61,11 +61,12 @@ Route::group([
         'check_access_token',
     ],
 ], function () {
-    // U6 获取用户信息接口
-    Route::get('/app/users/{id}', 'UsersController@responseUserInfoToApp')->where('id', '[0-9]+');
     // 获取午安账号积分接口
     Route::get('/app/users/{id}/point', 'UsersController@getUserPoint')->where('id', '[0-9]+');
     // 兑换午安账号积分接口
     Route::put('/app/users/{id}/point', 'UsersController@putUserPoint')->where('id', '[0-9]+');
 
 });
+
+// U6 获取用户信息接口
+Route::get('/app/users/{id}', 'UsersController@responseUserInfoToApp')->where('id', '[0-9]+');
