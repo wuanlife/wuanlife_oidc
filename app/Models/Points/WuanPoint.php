@@ -6,7 +6,7 @@
  * Time: 19:12
  */
 
-namespace App\Models\Users;
+namespace App\Models\Points;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,5 +15,7 @@ class WuanPoint extends Model
     public $timestamps = false;
     protected $table = 'wuan_point';
     protected $primaryKey = 'user_id';
-
+    protected $fillable = [
+        'user_id',
+    ];
 }

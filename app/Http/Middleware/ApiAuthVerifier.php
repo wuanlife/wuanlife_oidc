@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Hash;
 
 class ApiAuthVerifier
 {
@@ -16,23 +17,19 @@ class ApiAuthVerifier
     public function handle($request, Closure $next)
     {
         try {
-            if (
-                !$request->input('app')
-                or
+            if (!$request->query('app') or
                 !$secret = env(strtoupper($request->input('app')) . '_SECRET')
             ) {
                 throw new \Exception('未允许的请求来源');
-            }
-            if (!$info = $request->input('info')) {
+            } elseif (!$info = $request->query('info')) {
                 throw new \Exception('缺少必要参数：info');
-            };
-            if (!$key = $request->input('key')) {
+            } elseif (!$key = $request->query('key')) {
                 throw new \Exception('缺少必要参数：key');
             };
 
             // 应用名、请求时间、过期时间
             $require = ['app', 'iat', 'exp',];
-            $info_d = json_decode(base64_decode($info));
+            $info_d = json_decode($info);
             foreach ($require as $item) {
                 if (empty($info_d->$item)) {
                     throw new \Exception('缺少必要信息：' . $item);
@@ -42,8 +39,7 @@ class ApiAuthVerifier
                 throw new \Exception('请求已过期');
             }
 
-            $correct_key = \crypt($info, $secret);
-            if (!hash_equals($correct_key, $key)) {
+            if (!Hash::check($info . $secret, $key)) {
                 throw new \Exception('权限验证失败');
             }
 

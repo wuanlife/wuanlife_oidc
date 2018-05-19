@@ -9,14 +9,17 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\Users\{
-    Avatar, SexDetail, User, UserDetail, WuanPoint
-};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Points\{
+    PointsOrder, WuanPoint
+};
+use App\Models\Users\{
+    Avatar, SexDetail, User, UserDetail
+};
+use Illuminate\Support\Facades\{
+    Cookie, DB, Validator
+};
+
 
 class UsersController extends Controller
 {
@@ -46,6 +49,7 @@ class UsersController extends Controller
                 throw new \Exception('该用户名已被注册', 400);
             }
 
+            DB::beginTransaction();
             // 注册用户信息
             $user = User::create([
                 'name' => $request->post('name'),
@@ -60,7 +64,13 @@ class UsersController extends Controller
                 'user_id' => $user->id,
                 'url' => env('AVATAR-URL', ' ')
             ]);
+            WuanPoint::create([
+                'user_id' => $user->id,
+                'point' => 0,
+            ]);
+            DB::commit();
             if (!$user) {
+                DB::rollBack();
                 throw new \Exception('创建用户失败', 400);
             }
 
@@ -76,11 +86,7 @@ class UsersController extends Controller
             );
 
             // 注册成功，返回重定向信息
-            return
-                response(['ID-Token' => $id_token]);
-//                    ->withCookie(
-//                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
-//                    );
+            return response(['ID-Token' => $id_token]);
 
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
@@ -138,45 +144,45 @@ class UsersController extends Controller
             );
 
             // 登陆成功，设置 cookie 并返回重定向请求
-            return
-                response(['ID-Token' => $id_token]);
-//                    ->withCookie(
-//                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
-//                    );
+            return response(['ID-Token' => $id_token]);
+
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
                 return response(['error' => $exception->getMessage()], 400);
             } else {
                 return response(['error' => $exception->getMessage()], $exception->getCode());
             }
         }
     }
+
+    /**
+     * 获取积分(内部接口)
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function getUserPoint($id, Request $request)
     {
         $id_token = $request->get('id-token');
-        $as_token = $request->get('access-token');
         try {
             if ($id != $id_token->uid) {
                 throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
             }
             $user = WuanPoint::find($id_token->uid);
-            $scope = array_flip(explode(',', $as_token->scope));
-            if (isset($scope['public_profile'])) {
-                return response([
-                    'id'    =>$user['user_id'],
-                    'point' =>$user['point']
-                ], 200);
-            } else {
-                return response([], 200);
-            }
+
+            return response([
+                'id' => $user['user_id'],
+                'point' => $user['point']
+            ], 200);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
                 return response(['error' => $exception->getMessage()], 400);
             } else {
                 return response(['error' => $exception->getMessage()], $exception->getCode());
             }
         }
     }
+
     /**
      * 获取用户信息接口
      * @param $id
@@ -206,7 +212,7 @@ class UsersController extends Controller
                 return response([], 200);
             }
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
                 return response(['error' => $exception->getMessage()], 400);
             } else {
                 return response(['error' => $exception->getMessage()], $exception->getCode());
@@ -215,15 +221,13 @@ class UsersController extends Controller
     }
 
     /**
-     * 向午安应用服务器返回用户信息
+     * 向午安应用服务器返回用户信息(内部接口)
      * @param $id
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
     public function responseUserInfoToApp($id)
     {
         try {
-            //$token = $request->get('token');
-            //$this->verifyAppToken($token);
             $user = User::find($id);
             if (!$user) {
                 throw new \Exception('用户信息不存在', 400);
@@ -234,7 +238,7 @@ class UsersController extends Controller
                 'name' => $user->name,
             ], 200);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
                 return response(['error' => $exception->getMessage()], 400);
             } else {
                 return response(['error' => $exception->getMessage()], $exception->getCode());
@@ -242,30 +246,37 @@ class UsersController extends Controller
         }
     }
 
+    /**
+     * 增加用户积分(内部接口)
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function putUserPoint($id, Request $request)
     {
         $id_token = $request->get('id-token');
         $sub_point = $request->get('sub_point');
-        try{
-            if($id_token!=Crypt::decrypt($request->get('secret'))){
-                throw new \Exception('非法请求来源', 400);
-            }
+        try {
             if ($id != $id_token->uid) {
                 throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
             }
             DB::transaction(function () use ($sub_point, $id_token) {
                 WuanPoint::find($id_token->uid)->increment('point', $sub_point);
+                PointsOrder::create([
+                    'user_id' => $id_token->uid,
+                    'points_alert' => $sub_point,
+                ]);
             });
 
-        }
-        catch (\Exception $exception){
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+        } catch (\Exception $exception) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
                 return response(['error' => $exception->getMessage()], 400);
             } else {
                 return response(['error' => $exception->getMessage()], $exception->getCode());
             }
         }
     }
+
     /**
      * 修改用户信息接口
      * @param $id
@@ -313,7 +324,7 @@ class UsersController extends Controller
             return response(['success' => '修改成功'], 200);
         } catch (\Exception $exception) {
             DB::rollback();
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
+            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
                 return response(['error' => $exception->getMessage()], 400);
             } else {
                 return response(['error' => $exception->getMessage()], $exception->getCode());
@@ -336,21 +347,4 @@ class UsersController extends Controller
         }
     }
 
-
-    /**
-     * 验证用户的授权token
-     * @param $token
-     * @throws \Exception
-     */
-    private function verifyAppToken($token)
-    {
-        $key = env('WUAN_APP_KEY');
-        $info = explode('.', $token);
-        if (count($info) !== 2) {
-            throw new \Exception('无效token', 400);
-        }
-        if (crypt(base64_decode($info[0]), $key) == base64_decode($info[1])) {
-            throw new \Exception('无效token', 400);
-        }
-    }
 }

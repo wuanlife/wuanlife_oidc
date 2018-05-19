@@ -37,10 +37,6 @@ Route::group([
     Route::get('/users/{id}', 'UsersController@getUserInfo')->where('id', '[0-9]+');
     // U5 修改用户信息接口
     Route::put('/users/{id}', 'UsersController@editorUserInfo')->where('id', '[0-9]+');
-    // 获取午安账号积分接口
-    Route::get('/users/{id}/point','UsersController@getUserPoint');
-    // 兑换午安账号积分接口
-    Route::put('/users/{id}/point','UsersController@putUserPoint');
 });
 
 
@@ -55,6 +51,22 @@ Route::group([
     Route::post('/users/register', 'UsersController@register');
     // U4 退出登录接口
     Route::post('/users/logout', 'UsersController@logout');
-    // U6 对午安应用返回用户信息接口
-    Route::get('/app/users/{id}', 'UsersController@responseUserInfoToApp')->where('id', '[0-9]+');
 });
+
+// 内部通信接口
+Route::group([
+    'middleware' => [
+        'requester_auth',
+        'check_id_token',
+        'check_access_token',
+    ],
+], function () {
+    // 获取午安账号积分接口
+    Route::get('/app/users/{id}/point', 'UsersController@getUserPoint')->where('id', '[0-9]+');
+    // 兑换午安账号积分接口
+    Route::put('/app/users/{id}/point', 'UsersController@putUserPoint')->where('id', '[0-9]+');
+
+});
+
+// U6 获取用户信息接口
+Route::get('/app/users/{id}', 'UsersController@responseUserInfoToApp')->where('id', '[0-9]+');
