@@ -1,10 +1,11 @@
 -- 找回密码表
 CREATE TABLE IF NOT EXISTS reset_password
 (
-  user_id INT UNSIGNED NOT NULL
+  user_id    INT UNSIGNED                        NOT NULL
   COMMENT '用户id',
-  token   VARCHAR(255) COLLATE utf8_bin COMMENT '验证token',
-  exp     TIMESTAMP    NOT NULL
+  token      VARCHAR(255) COLLATE utf8_bin COMMENT '验证token',
+  created_at TIMESTAMP default CURRENT_TIMESTAMP NOT NULL,
+  exp        TIMESTAMP default CURRENT_TIMESTAMP NOT NULL
   COMMENT '过期时间',
   PRIMARY KEY (user_id)
 )
