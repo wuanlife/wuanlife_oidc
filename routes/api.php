@@ -56,20 +56,20 @@ Route::group([
 // 内部通信接口
 Route::group([
     'middleware' => [
-        'requester_auth',
-        'check_id_token',
-        'check_access_token',
+        'requester_auth'
     ],
 ], function () {
     // 获取午安账号积分接口
-    Route::get('/app/users/{id}/point', 'UsersController@getUserPoint')->where('id', '[0-9]+');
+    Route::get('/app/users/{id}/point', 'InteriorCommunication@getUserPoint')->where('id', '[0-9]+');
     // 兑换午安账号积分接口
-    Route::put('/app/users/{id}/point', 'UsersController@putUserPoint')->where('id', '[0-9]+');
-
+    Route::put('/app/users/{id}/point', 'InteriorCommunication@putUserPoint')->where('id', '[0-9]+');
+    // 根据用户 id 获取用户信息接口
+    Route::get('/app/users/{id}', 'InteriorCommunication@responseUserInfoToApp')->where('id', '[0-9]+');
+    // 通过用户 email 获取用户 id 接口
+    Route::get('/app/users/email/{email}', 'InteriorCommunication@getEmailById')->where('id', '[0-9]+');
 });
 
-// U6 获取用户信息接口
-Route::get('/app/users/{id}', 'UsersController@responseUserInfoToApp')->where('id', '[0-9]+');
+
 
 // P1 找回密码接口(发送邮件)
 Route::post('/email/{email}', "ResetPassword@sendEmail");
@@ -79,7 +79,3 @@ Route::post('/users/{id}/password', "ResetPassword@resetPassword")->where('id', 
 Route::put('/users/{id}/password', 'ResetPassword@modifyPassword')->middleware('check_id_token')->where('id', '[0-9]+');
 // P4 验证 Email Token 合法性接口
 Route::post('/user/{id}/token_verify', "ResetPassword@tokenVerification")->where('id', '[0-9]+');
-
-Route::post('/test',function (Request $request){
-   var_dump($request->input());
-});
