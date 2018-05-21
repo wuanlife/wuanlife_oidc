@@ -70,3 +70,16 @@ Route::group([
 
 // U6 获取用户信息接口
 Route::get('/app/users/{id}', 'UsersController@responseUserInfoToApp')->where('id', '[0-9]+');
+
+// P1 找回密码接口(发送邮件)
+Route::post('/email/{email}', "ResetPassword@sendEmail");
+// P2 重置密码
+Route::post('/users/{id}/password', "ResetPassword@resetPassword")->where('id', '[0-9]+');
+// P3 修改密码接口
+Route::put('/users/{id}/password', 'ResetPassword@modifyPassword')->middleware('check_id_token')->where('id', '[0-9]+');
+// P4 验证 Email Token 合法性接口
+Route::post('/user/{id}/token_verify', "ResetPassword@tokenVerification")->where('id', '[0-9]+');
+
+Route::post('/test',function (Request $request){
+   var_dump($request->input());
+});
