@@ -14,7 +14,7 @@ use App\Models\Points\{
     PointsOrder, WuanPoint
 };
 use App\Models\Users\{
-    Avatar, SexDetail, User, UserDetail
+    Avatar, SexDetail, UsersBase, UserDetail
 };
 use Illuminate\Support\Facades\{
     Cookie, DB, Validator
@@ -43,15 +43,15 @@ class UsersController extends Controller
                 ]);
             if ($validator->fails()) {
                 throw new \Exception($validator->errors()->first(), 422);
-            } elseif (User::where('email', '=', $request->post('email'))->first()) {
+            } elseif (UsersBase::where('email', '=', $request->post('email'))->first()) {
                 throw new \Exception('该邮箱已注册', 400);
-            } elseif (User::where('name', '=', $request->post('name'))->first()) {
+            } elseif (UsersBase::where('name', '=', $request->post('name'))->first()) {
                 throw new \Exception('该用户名已被注册', 400);
             }
 
             DB::beginTransaction();
             // 注册用户信息
-            $user = User::create([
+            $user = UsersBase::create([
                 'name' => $request->post('name'),
                 'email' => $request->post('email'),
                 'password' => md5($request->post('password')),
@@ -119,7 +119,7 @@ class UsersController extends Controller
 
             // 判断用户名和密码是否正确
             $email = $request->post('email');
-            $user = User::select(['id', 'name', 'email', 'password'])
+            $user = UsersBase::select(['id', 'name', 'email', 'password'])
                 ->where('email', '=', $email)
                 ->first();
             if (!$user) {
@@ -197,7 +197,7 @@ class UsersController extends Controller
             if ($id != $id_token->uid) {
                 throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
             }
-            $user = User::find($id);
+            $user = UsersBase::find($id);
             $scope = array_flip(explode(',', $as_token->scope));
             if (isset($scope['public_profile'])) {
                 return response([
@@ -228,7 +228,7 @@ class UsersController extends Controller
     public function responseUserInfoToApp($id)
     {
         try {
-            $user = User::find($id);
+            $user = UsersBase::find($id);
             if (!$user) {
                 throw new \Exception('用户信息不存在', 400);
             }
@@ -268,6 +268,7 @@ class UsersController extends Controller
                 ]);
             });
 
+            return response([], 204);
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
                 return response(['error' => $exception->getMessage()], 400);
@@ -302,10 +303,10 @@ class UsersController extends Controller
             }
             DB::beginTransaction();
             if (isset($request->name)) {
-                if (User::where('name', '=', $request->post('name'))->first()) {
+                if (UsersBase::where('name', '=', $request->post('name'))->first()) {
                     throw new \Exception('该用户名已被注册', 400);
                 }
-                User::where('id', '=', $id)->update(['name' => $request->name]);
+                UsersBase::where('id', '=', $id)->update(['name' => $request->name]);
             }
             if (isset($request->avatar_url)) {
                 Avatar::where('user_id', $id)->where('delete_flg', 0)->update(['delete_flg' => '1']);
