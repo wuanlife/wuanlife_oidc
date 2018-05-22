@@ -37,7 +37,7 @@ class InteriorCommunication extends Controller
     }
 
     /**
-     * 根据用户 id ，获取 email （内部接口）
+     * 根据用户 email ，获取 id （内部接口）
      * @param $email
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
@@ -67,7 +67,7 @@ class InteriorCommunication extends Controller
      */
     public function putUserPoint($id, Request $request)
     {
-        $sub_point = $request->get('sub_point');
+        $sub_point = $request->input('sub_point');
         try {
             DB::transaction(function () use ($sub_point, $id) {
                 WuanPoint::find($id)->increment('point', $sub_point);
@@ -95,12 +95,8 @@ class InteriorCommunication extends Controller
      */
     public function getUserPoint($id, Request $request)
     {
-        $id_token = $request->get('id-token');
         try {
-            if ($id != $id_token->uid) {
-                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
-            }
-            $user = WuanPoint::find($id_token->uid);
+            $user = WuanPoint::find($id);
 
             return response([
                 'id' => $user['user_id'],
