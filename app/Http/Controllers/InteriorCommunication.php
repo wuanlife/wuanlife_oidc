@@ -70,7 +70,7 @@ class InteriorCommunication extends Controller
         $sub_point = $request->input('sub_point');
         try {
             DB::transaction(function () use ($sub_point, $id) {
-                WuanPoints::find($id)->increment('point', $sub_point);
+                WuanPoints::find($id)->increment('points', $sub_point);
                 PointsOrder::create([
                     'user_id' => $id,
                     'points_alert' => $sub_point,
@@ -100,7 +100,7 @@ class InteriorCommunication extends Controller
 
             return response([
                 'id' => $user['user_id'],
-                'point' => $user['points']
+                'points' => $user['points']
             ], 200);
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 500) {

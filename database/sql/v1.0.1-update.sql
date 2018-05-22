@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS reset_password
   COMMENT '用户id',
   token      VARCHAR(255) COLLATE utf8_bin COMMENT '验证token',
   created_at TIMESTAMP default CURRENT_TIMESTAMP NOT NULL,
-  exp        TIMESTAMP default CURRENT_TIMESTAMP NOT NULL
+  exp        TIMESTAMP                           NOT NULL
   COMMENT '过期时间',
   PRIMARY KEY (user_id)
 )
