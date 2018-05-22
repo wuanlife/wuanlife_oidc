@@ -20,11 +20,11 @@ class ApiAuthVerifier
             if (!$request->input('app') or
                 !$secret = env(strtoupper($request->input('app')) . '_SECRET')
             ) {
-                throw new \Exception('未允许的请求来源');
+                throw new \Exception('illegal request');
             } elseif (!$info = $request->input('info')) {
-                throw new \Exception('缺少必要参数：info');
+                throw new \Exception('The info field is required.');
             } elseif (!$key = $request->input('key')) {
-                throw new \Exception('缺少必要参数：key');
+                throw new \Exception('The key field is required.');
             };
 
             // 应用名、请求时间、过期时间
@@ -32,15 +32,15 @@ class ApiAuthVerifier
             $info_d = json_decode($info);
             foreach ($require as $item) {
                 if (empty($info_d->$item)) {
-                    throw new \Exception('缺少必要信息：' . $item);
+                    throw new \Exception('The ' . $item . ' item is required');
                 }
             }
             if ($info_d->exp < time()) {
-                throw new \Exception('请求已过期');
+                throw new \Exception('Request is expired');
             }
 
             if (!Hash::check($info . $secret, $key)) {
-                throw new \Exception('权限验证失败');
+                throw new \Exception('Fail to verify auth');
             }
 
         } catch (\Exception $exception) {
