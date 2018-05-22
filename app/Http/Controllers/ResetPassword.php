@@ -45,7 +45,7 @@ class ResetPassword extends Controller
             $this->checkRequestAllowed($id);
 
             // 构造找回密码 url
-            $exp = date("Y-m-d H:i:s", time() + env("APP_KEY"));
+            $exp = date("Y-m-d H:i:s", time() + env('RESET_PASSWORD_TOKEN_EXP'));
             $token = $this->getToken($email);
             $view_url = route('reset_password');
             $url = "{$view_url}?&id={$id}&token={$token}";
@@ -143,7 +143,7 @@ class ResetPassword extends Controller
             "9",
             "0"
         ];
-        $string = $email . env("RESET_PSD_SALT");//盐值在env文件里定义常量
+        $string = $email . env('APP_KEY');//盐值在env文件里定义常量
         for ($i = 0; $i < 4; $i++) {
             $string = $string . $array[mt_rand(0, count($array) - 1)];
         }
