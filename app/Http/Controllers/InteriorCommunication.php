@@ -100,7 +100,7 @@ class InteriorCommunication extends Controller
 
             return response([
                 'id' => $user['user_id'],
-                'point' => $user['point']
+                'point' => $user['points']
             ], 200);
         } catch (\Exception $exception) {
             if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
