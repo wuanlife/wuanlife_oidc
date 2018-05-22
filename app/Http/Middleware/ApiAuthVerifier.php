@@ -17,13 +17,13 @@ class ApiAuthVerifier
     public function handle($request, Closure $next)
     {
         try {
-            if (!$request->query('app') or
+            if (!$request->input('app') or
                 !$secret = env(strtoupper($request->input('app')) . '_SECRET')
             ) {
                 throw new \Exception('未允许的请求来源');
-            } elseif (!$info = $request->query('info')) {
+            } elseif (!$info = $request->input('info')) {
                 throw new \Exception('缺少必要参数：info');
-            } elseif (!$key = $request->query('key')) {
+            } elseif (!$key = $request->input('key')) {
                 throw new \Exception('缺少必要参数：key');
             };
 
