@@ -10,10 +10,10 @@ namespace App\Models\Points;
 
 use Illuminate\Database\Eloquent\Model;
 
-class WuanPoint extends Model
+class WuanPoints extends Model
 {
     public $timestamps = false;
-    protected $table = 'wuan_point';
+    protected $table = 'wuan_points';
     protected $primaryKey = 'user_id';
     protected $fillable = [
         'user_id',

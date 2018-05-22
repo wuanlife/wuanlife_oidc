@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Points\PointsOrder;
-use App\Models\Points\WuanPoint;
+use App\Models\Points\WuanPoints;
 use App\Models\Users\UsersBase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -70,7 +70,7 @@ class InteriorCommunication extends Controller
         $sub_point = $request->input('sub_point');
         try {
             DB::transaction(function () use ($sub_point, $id) {
-                WuanPoint::find($id)->increment('point', $sub_point);
+                WuanPoints::find($id)->increment('point', $sub_point);
                 PointsOrder::create([
                     'user_id' => $id,
                     'points_alert' => $sub_point,
@@ -96,7 +96,7 @@ class InteriorCommunication extends Controller
     public function getUserPoint($id, Request $request)
     {
         try {
-            $user = WuanPoint::find($id);
+            $user = WuanPoints::find($id);
 
             return response([
                 'id' => $user['user_id'],

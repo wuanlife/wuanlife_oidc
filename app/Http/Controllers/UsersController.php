@@ -10,9 +10,7 @@ namespace App\Http\Controllers;
 
 
 use Illuminate\Http\Request;
-use App\Models\Points\{
-    PointsOrder, WuanPoint
-};
+use App\Models\Points\WuanPoints;
 use App\Models\Users\{
     Avatar, SexDetail, UsersBase, UserDetail
 };
@@ -64,9 +62,9 @@ class UsersController extends Controller
                 'user_id' => $user->id,
                 'url' => env('AVATAR-URL', ' ')
             ]);
-            WuanPoint::create([
+            WuanPoints::create([
                 'user_id' => $user->id,
-                'point' => 0,
+                'points' => 0,
             ]);
             DB::commit();
             if (!$user) {
