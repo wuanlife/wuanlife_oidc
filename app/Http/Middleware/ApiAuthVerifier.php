@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class ApiAuthVerifier
 {
@@ -28,24 +27,13 @@ class ApiAuthVerifier
                 return response(['error' => 'The key field is required.'], 422);
             };
 
-            $validator = Validator::make($request->all(),
-                [
-                    'info' => 'required',
-                    'key' => 'required',
-                ]);
-            if ($validator->fails()) {
-                return response(['error' => $validator->errors()->first()], 422);
-            }
-
+            // 应用名、请求时间、过期时间
+            $require = ['app', 'iat', 'exp',];
             $info_d = json_decode($info);
-            $validator = Validator::make($info_d,
-                [
-                    'app' => 'required',    // 应用名
-                    'iat' => 'required',    // 请求时间
-                    'exp' => 'required',    // 过期时间
-                ]);
-            if ($validator->fails()) {
-                return response(['error' => $validator->errors()->first()], 422);
+            foreach ($require as $item) {
+                if (empty($info_d->$item)) {
+                    throw new \Exception('缺少必要信息：' . $item);
+                }
             }
 
             if ($info_d->exp < time()) {
