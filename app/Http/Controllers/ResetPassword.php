@@ -214,7 +214,7 @@ class ResetPassword extends Controller
             $buffer = $resetPassword->getMessageById($id);
 
             if (empty($buffer) || $buffer->token !== $token) {
-                return response(['error' => 'Illegal request', 403]);
+                return response(['error' => 'Illegal request'], 403);
             }
             if ($usersBase->resetPasswordById($id, md5($password))) {
                 return response([], Response::HTTP_NO_CONTENT);
