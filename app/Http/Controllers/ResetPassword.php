@@ -34,12 +34,12 @@ class ResetPassword extends Controller
             ]);
 
             if ($validator->fails()) {
-                throw new \Exception('非法邮箱地址');
+                return response(['error' => $validator->errors()->first()], 422);
             }
 
             $id = $this->getId($email);
             if ($id == -1) {
-                throw new \Exception('该邮箱尚未在本站注册');
+                return response(['error' => 'The email is non-registered'], 404);
             }
             // 验证用户是否是在短时间内多次请求
             $this->checkRequestAllowed($id);
@@ -53,18 +53,16 @@ class ResetPassword extends Controller
             // 在数据库中保存 token
             $saveFlag = $this->saveResetToken($id, $token, $exp);
             if (!$saveFlag) {
-                throw new \Exception('添加相关数据失败');
+                return response(['error' => 'Failed to add relevant data'], 400);
             }
 
             // 发送邮件
             $this->send($email, $url);
             DB::commit();
-
             return response([], Response::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
             DB::rollback();
-
-            return response(['error' => '发送邮件失败：' . $e->getMessage()], 400);
+            return response(['error' => 'Failed to send email: ' . $e->getMessage()], 400);
         }
     }
 
@@ -93,7 +91,7 @@ class ResetPassword extends Controller
         $res = ResetPsd::where('user_id', $id)->first();
 
         if (!empty($res) && strtotime($res->created_at) + 60 > time()) {
-            throw new \Exception('请求过于频繁');
+            throw new \Exception('Requesting it more often');
         }
 
     }
@@ -202,7 +200,7 @@ class ResetPassword extends Controller
             ]);
 
             if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first());
+                return response(['error' => $validator->errors()->first()], 422);
             }
 
             // 验证 token 是否存在于数据库中
@@ -216,19 +214,16 @@ class ResetPassword extends Controller
             $buffer = $resetPassword->getMessageById($id);
 
             if (empty($buffer) || $buffer->token !== $token) {
-                throw new \Exception('非法请求');
+                return response(['error' => 'Illegal request', 403]);
             }
-
             if ($usersBase->resetPasswordById($id, md5($password))) {
-
                 return response([], Response::HTTP_NO_CONTENT);
             } else {
-                throw new \Exception('重置密码失败');
+                return response(['error' => 'Failed to reset password'], 400);
             }
 
         } catch (\Exception $e) {
-
-            return response(['error' => '验证 token 失败：' . $e->getMessage()], 400);
+            return response(['error' => 'Failed to reset password: ' . $e->getMessage()], 400);
         }
     }
 
@@ -245,9 +240,8 @@ class ResetPassword extends Controller
                 $validator = Validator::make(request()->all(), [
                     'token' => 'required|alpha_num|filled',
                 ]);
-
                 if ($validator->fails()) {
-                    throw new \Exception($validator->errors()->first());
+                    return response(['error' => $validator->errors()->first()], 422);
                 }
 
                 $token = request()->input("token");
@@ -255,16 +249,14 @@ class ResetPassword extends Controller
             $resetPassword = new ResetPsd();
             $buffer = $resetPassword->tokenExists($token, $id);
             if (empty($buffer)) {
-                throw new \Exception('非法请求，token不存在');
+                return response(['error' => 'Illegal request,token is not exists'], 401);
             }
             if (strtotime($buffer->exp) < time()) {
-                throw new \Exception('请求已过期');
+                return response(['error' => 'Request expired'], 400);
             }
-
             return response([], Response::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
-
-            return response(['error' => '验证 token 失败：' . $e->getMessage()], 400);
+            return response(['error' => 'Failed to authentication token: ' . $e->getMessage()], 400);
         }
     }
 
@@ -282,14 +274,14 @@ class ResetPassword extends Controller
                 'new_password' => 'required|alpha_num|filled',
             ]);
             if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first());
+                return response(['error' => $validator->errors()->first()], 422);
             }
 
             $password = $request->input("password");
             $new_password = $request->input("new_password");
             $id_token = $request->get('id-token');
-            if ($id_token->uid != $id){
-                throw new \Exception('非法请求');
+            if ($id_token->uid != $id) {
+                return response(['error' => 'Illegal request', 403]);
             }
 
             $user = new UsersBase();
@@ -297,12 +289,10 @@ class ResetPassword extends Controller
             if ($user->modifyPasswordById($id, md5($password), md5($new_password))) {
                 return response([], Response::HTTP_NO_CONTENT);//修改成功
             } else {
-                throw new \Exception('修改密码失败');
+                return response(['error' => 'Failed to change password'], 400);
             }
-
         } catch (\Exception $e) {
-            
-            return response(['error' => '验证 token 失败：' . $e->getMessage()], 400);
+            return response(['error' => 'Failed to authentication token: ' . $e->getMessage()], 400);
         }
     }
 
