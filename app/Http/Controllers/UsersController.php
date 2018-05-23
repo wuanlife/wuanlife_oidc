@@ -40,11 +40,11 @@ class UsersController extends Controller
 
                 ]);
             if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first(), 422);
+                return response(['error' => $validator->errors()->first()], 422);
             } elseif (UsersBase::where('email', '=', $request->post('email'))->first()) {
-                throw new \Exception('该邮箱已注册', 400);
+                return response(['error' => 'Email address already exists'], 400);
             } elseif (UsersBase::where('name', '=', $request->post('name'))->first()) {
-                throw new \Exception('该用户名已被注册', 400);
+                return response(['error' => 'Username already exists'], 400);
             }
 
             DB::beginTransaction();
@@ -69,7 +69,7 @@ class UsersController extends Controller
             DB::commit();
             if (!$user) {
                 DB::rollBack();
-                throw new \Exception('创建用户失败', 400);
+                return response(['error' => 'Failed to register'], 400);
             }
 
             $id_token = JwtVerifier::makeIdToken(
@@ -82,16 +82,10 @@ class UsersController extends Controller
                     'aud' => $request->get('client_id')
                 ]
             );
-
             // 注册成功，返回重定向信息
             return response(['ID-Token' => $id_token]);
-
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -112,7 +106,7 @@ class UsersController extends Controller
 
                 ]);
             if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first(), 422);
+                return response(['error' => $validator->errors()->first()], 422);
             }
 
             // 判断用户名和密码是否正确
@@ -122,11 +116,11 @@ class UsersController extends Controller
                 ->first();
             if (!$user) {
 
-                throw new \Exception('用户不存在', 400);
+                return response(['error' => 'User does not exist'], 422);
             }
             if ($user->password != md5($request->post('password'))) {
 
-                throw new \Exception('密码不正确', 400);
+                return response(['error' => 'Incorrect password'], 400);
             }
 
             // 生成 JWT-Token
@@ -140,16 +134,10 @@ class UsersController extends Controller
                     'aud' => $request->get('client_id')
                 ]
             );
-
             // 登陆成功，设置 cookie 并返回重定向请求
             return response(['ID-Token' => $id_token]);
-
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -165,7 +153,7 @@ class UsersController extends Controller
         $as_token = $request->get('access-token');
         try {
             if ($id != $id_token->uid) {
-                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
+                return response(['error' => 'Illegal request,user id do not match this token'], 403);
             }
             $user = UsersBase::find($id);
             $scope = array_flip(explode(',', $as_token->scope));
@@ -182,11 +170,7 @@ class UsersController extends Controller
                 return response([], 200);
             }
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -211,12 +195,12 @@ class UsersController extends Controller
                     'birthday'
                 ]))
             ) {
-                throw new \Exception('没有要修改的内容', 400);
+                return response(['error' => '没有要修改的内容'], 400);
             }
             DB::beginTransaction();
             if (isset($request->name)) {
                 if (UsersBase::where('name', '=', $request->post('name'))->first()) {
-                    throw new \Exception('该用户名已被注册', 400);
+                    return response(['error' => 'Username already exists'], 400);
                 }
                 UsersBase::where('id', '=', $id)->update(['name' => $request->name]);
             }
@@ -226,7 +210,7 @@ class UsersController extends Controller
             }
             if (isset($request->sex)) {
                 if ($a = SexDetail::where('id', $request->sex)->first()) {
-                    throw new \Exception('非法请求，错误的性别类型', 400);
+                    return response(['error' => 'Illegal request,error type of sex'], 422);
                 }
                 UserDetail::where('id', '=', $id)->update(['sex' => $request->sex]);
             }
@@ -234,14 +218,10 @@ class UsersController extends Controller
                 UserDetail::where('id', '=', $id)->update(['birthday' => $request->birthday]);
             }
             DB::commit();
-            return response(['success' => '修改成功'], 200);
+            return response(['success' => 'Successfully modified'], 200);
         } catch (\Exception $exception) {
             DB::rollback();
-            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -252,11 +232,11 @@ class UsersController extends Controller
     public function logout()
     {
         try {
-            return response(['success' => '退出登录成功'], 200)
+            return response(['success' => 'Logout successful'], 200)
                 ->withCookie(Cookie::forget('wuan-access-token'))
                 ->withCookie(Cookie::forget('wuan-id-token'));
         } catch (\Exception $exception) {
-            return response(['error' => '退出登录失败'], 400);
+            return response(['error' => 'Failed to logout'], 400);
         }
     }
 

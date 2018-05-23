@@ -20,16 +20,12 @@ class CheckAccessToken
         try {
             $access_token = $request->header(AuthController::ACCESS_TOKEN_KEY);
             if (!$access_token) {
-                throw new \Exception('缺少Access-Token', 400);
+                return response(['error' => '缺少Access-Token'], 401);
             }
             $data = JwtVerifier::verifyToken($access_token, 'Access');
             $request->attributes->add(['access-token' => $data]);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
                 return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
         }
         return $next($request);
     }

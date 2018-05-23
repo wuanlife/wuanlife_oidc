@@ -20,7 +20,7 @@ class InteriorCommunication extends Controller
         try {
             $user = UsersBase::find($id);
             if (!$user) {
-                throw new \Exception('用户信息不存在', 400);
+                throw new \Exception('User info not found', 400);
             }
             return response([
                 'id' => $user['id'],
@@ -28,11 +28,7 @@ class InteriorCommunication extends Controller
                 'name' => $user->name,
             ], 200);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -41,21 +37,18 @@ class InteriorCommunication extends Controller
      * @param $email
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function getEmailById($email){
+    public function getEmailById($email)
+    {
         try {
-            $user = UsersBase::where('email',$email)->first();
+            $user = UsersBase::where('email', $email)->first();
             if (!$user) {
-                throw new \Exception('用户信息不存在', 400);
+                return response(['error' => 'User info not found'], 404);
             }
             return response([
                 'id' => $user['id'],
             ], 200);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -79,35 +72,25 @@ class InteriorCommunication extends Controller
 
             return response([], 204);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
     /**
      * 获取积分(内部接口)
      * @param $id
-     * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function getUserPoint($id, Request $request)
+    public function getUserPoint($id)
     {
         try {
             $user = WuanPoints::find($id);
-
             return response([
                 'id' => $user['user_id'],
                 'points' => $user['points']
             ], 200);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 500) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 }
