@@ -61,7 +61,7 @@ class InteriorCommunication extends Controller
     public function putUserPoint($id, Request $request)
     {
         $sub_point = $request->input('sub_point');
-        if (!is_numeric($sub_point)) {
+        if (!is_numeric($sub_point) || ($sub_point < 0) || (floor($sub_point) != $sub_point)) {
             return response(['error' => 'point must be integer'], 422);
         }
         try {
