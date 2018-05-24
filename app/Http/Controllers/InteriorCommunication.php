@@ -61,6 +61,9 @@ class InteriorCommunication extends Controller
     public function putUserPoint($id, Request $request)
     {
         $sub_point = $request->input('sub_point');
+        if (!is_numeric($sub_point)) {
+            return response(['error' => 'point must be integer'], 422);
+        }
         try {
             DB::transaction(function () use ($sub_point, $id) {
                 WuanPoints::find($id)->increment('points', $sub_point);
