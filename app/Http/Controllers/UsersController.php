@@ -60,7 +60,7 @@ class UsersController extends Controller
             ]);
             Avatar::create([
                 'user_id' => $user->id,
-                'url' => env('AVATAR-URL', ' ')
+                'url' => env('AVATAR_URL', ' ')
             ]);
             WuanPoints::create([
                 'user_id' => $user->id,

@@ -13,8 +13,8 @@ class QiNiuController extends Controller
     public function getUploadToken()
     {
         try {
-            $auth = new Auth(env('QINIU-ACCESS-KEY'), env('QINIU-SECRET-KEY'));
-            $token = $auth->uploadToken(env('QINIU-BUCKET-NAME'));
+            $auth = new Auth(env('QINIU_ACCESS_KEY'), env('QINIU_SECRET_KEY'));
+            $token = $auth->uploadToken(env('QINIU_BUCKET_NAME'));
             return response(['upload-token' => $token]);
         } catch (\Exception $e) {
             return response(['error' => 'Failed to get upload token']);
