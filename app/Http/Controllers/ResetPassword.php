@@ -30,6 +30,7 @@ class ResetPassword extends Controller
             $validator = Validator::make([
                 'email' => $email
             ], [
+                'url'=>'required|url',
                 'email' => 'required|string|E-mail|',
             ]);
 
@@ -47,7 +48,7 @@ class ResetPassword extends Controller
             // 构造找回密码 url
             $exp = date("Y-m-d H:i:s", time() + env('RESET_PASSWORD_TOKEN_EXP'));
             $token = $this->getToken($email);
-            $view_url = route('reset_password');
+            $view_url = request()->input('url');
             $url = "{$view_url}?&id={$id}&token={$token}";
 
             // 在数据库中保存 token
@@ -174,15 +175,14 @@ class ResetPassword extends Controller
     private function send($email, $url)
     {
         //MailboxTemplate视图只是测试用视图，发送者邮箱、名称、标题皆在env文件里设置常量
-        $flag = Mail::send(env('MAIL_TEMPLATE'), ['url' => $url], function ($message) use ($email) {
-            $message->to($email)->subject(env('MAIL_TITLE'));
-        });
-
-        //$flag的值为FALSE||null的时候发送成功
-        if ($flag) {
-            return -1;//发送失败
+        try {
+            Mail::send(env('MAIL_TEMPLATE'), ['url' => $url], function ($message) use ($email) {
+                $message->to($email)->subject(env('MAIL_TITLE'));
+            });
+            return 1;
+        } catch (\Exception $e) {
+            return -1;
         }
-        return 1;//发送成功
     }
 
     /**
