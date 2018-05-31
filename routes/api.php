@@ -24,6 +24,9 @@ Route::group([
 ], function () {
     // A2 申请授权接口
     Route::post('/auth', 'AuthController@getAccessToken');
+
+    // A3 获取七牛 token 接口
+    Route::get('/qiniu/token','QiNiuController@getUploadToken');
 });
 
 
