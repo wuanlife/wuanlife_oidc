@@ -209,7 +209,7 @@ class UsersController extends Controller
                 Avatar::create(['user_id' => $id, 'url' => $request->avatar_url]);
             }
             if (isset($request->sex)) {
-                if ($a = SexDetail::where('id', $request->sex)->first()) {
+                if (!SexDetail::where('id', $request->sex)->first()) {
                     return response(['error' => 'Illegal request,error type of sex'], 422);
                 }
                 UserDetail::where('id', '=', $id)->update(['sex' => $request->sex]);
