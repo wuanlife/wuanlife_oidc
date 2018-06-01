@@ -32,7 +32,7 @@ class ApiAuthVerifier
             $info_d = json_decode($info);
             foreach ($require as $item) {
                 if (empty($info_d->$item)) {
-                    throw new \Exception('缺少必要信息：' . $item);
+                    throw new \Exception('Lack of necessary information:' . $item);
                 }
             }
 

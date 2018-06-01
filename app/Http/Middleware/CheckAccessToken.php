@@ -20,7 +20,7 @@ class CheckAccessToken
         try {
             $access_token = $request->header(AuthController::ACCESS_TOKEN_KEY);
             if (!$access_token) {
-                return response(['error' => '缺少Access-Token'], 401);
+                return response(['error' => 'Lack Access-Token'], 401);
             }
             $data = JwtVerifier::verifyToken($access_token, 'Access');
             $request->attributes->add(['access-token' => $data]);
