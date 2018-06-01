@@ -16,14 +16,14 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Validator;
 
-class ResetPassword extends Controller
+class PasswordController extends Controller
 {
     /**
      * 发送重置密码邮件
      * @param $email
      * @return \Illuminate\Contracts\Routing\ResponseFactory|Response
      */
-    public function sendEmail($email)
+    public function requestToSend($email)
     {
         DB::beginTransaction();
         try {
@@ -58,7 +58,7 @@ class ResetPassword extends Controller
             }
 
             // 发送邮件
-            $this->send($email, $url);
+            $this->sendEmail($email, $url);
             DB::commit();
             return response([], Response::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
@@ -172,7 +172,7 @@ class ResetPassword extends Controller
      * @param $url
      * @return \Illuminate\Contracts\Routing\ResponseFactory|int|Response
      */
-    private function send($email, $url)
+    private function sendEmail($email, $url)
     {
         //MailboxTemplate视图只是测试用视图，发送者邮箱、名称、标题皆在env文件里设置常量
         try {
@@ -191,7 +191,7 @@ class ResetPassword extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|Response
      */
-    public function resetPassword($id, Request $request)
+    public function reset($id, Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -266,7 +266,7 @@ class ResetPassword extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|Response
      */
-    public function modifyPassword($id, Request $request)
+    public function modify($id, Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
