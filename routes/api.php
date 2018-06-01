@@ -26,7 +26,7 @@ Route::group([
     Route::post('/auth', 'AuthController@getAccessToken');
 
     // A3 获取七牛 token 接口
-    Route::get('/qiniu/token','QiNiuController@getUploadToken');
+    Route::get('/qiniu/token', 'QiNiuController@getUploadToken');
 });
 
 
@@ -40,6 +40,14 @@ Route::group([
     Route::get('/users/{id}', 'UsersController@getUserInfo')->where('id', '[0-9]+');
     // U5 修改用户信息接口
     Route::put('/users/{id}', 'UsersController@editorUserInfo')->where('id', '[0-9]+');
+
+    // Q1 获取积分种类列表
+    Route::get('/users/{id}/points_list', 'PointsController@getList')->where('id', '[0-9]+');
+    // Q2 获取午安账号积分接口
+    Route::get('/users/{id}/wuan_points', 'PointsController@accountsGet')->where('id', '[0-9]+');
+    // Q3 兑换积分
+    Route::put('/users/{id}/points', 'PointsController@exchange')->where('id', '[0-9]+');
+
 });
 
 
@@ -73,12 +81,12 @@ Route::group([
 });
 
 
-
 // P1 找回密码接口(发送邮件)
-Route::post('/email/{email}', "ResetPassword@sendEmail");
+Route::post('/email/{email}', 'PasswordController@requestToSend');
 // P2 重置密码
-Route::post('/users/{id}/password', "ResetPassword@resetPassword")->where('id', '[0-9]+');
+Route::post('/users/{id}/password', 'PasswordController@resetPassword')->where('id', '[0-9]+');
 // P3 修改密码接口
-Route::put('/users/{id}/password', 'ResetPassword@modifyPassword')->middleware('check_id_token')->where('id', '[0-9]+');
+Route::put('/users/{id}/password', 'PasswordController@modify')->middleware('check_id_token')->where('id', '[0-9]+');
 // P4 验证 Email Token 合法性接口
-Route::post('/user/{id}/token_verify', "ResetPassword@tokenVerification")->where('id', '[0-9]+');
+Route::post('/user/{id}/token_verify', 'PasswordController@tokenVerification')->where('id', '[0-9]+');
+
