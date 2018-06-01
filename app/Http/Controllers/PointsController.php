@@ -123,9 +123,9 @@ class PointsController extends Controller
                 ]
             );
             if ($response->getStatusCode() == 204) {
-                WuanPoints::find($id)->increment('points',$sub_point);
+                WuanPoints::find($id)->increment('points', $sub_point);
             } else {
-                throw new \Exception('Fail to exchange points');
+                return response(['error' => 'Fail to exchange points:' . $response->getBody()->getContents()]);
             }
 
             DB::commit();
