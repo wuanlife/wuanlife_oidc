@@ -126,9 +126,9 @@ CREATE TABLE IF NOT EXISTS reset_password
 -- 午安积分表
 CREATE TABLE IF NOT EXISTS wuan_points
 (
-  user_id INT UNSIGNED NOT NULL
+  user_id INT UNSIGNED   NOT NULL
   COMMENT '用户id',
-  points  INT UNSIGNED NOT NULL DEFAULT 0
+  points  FLOAT UNSIGNED NOT NULL DEFAULT 0
   COMMENT '午安积分',
   PRIMARY KEY (user_id)
 )
@@ -143,8 +143,29 @@ CREATE TABLE IF NOT EXISTS points_order
   id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id      INT UNSIGNED NOT NULL
   COMMENT '用户id',
-  points_alert INT          NOT NULL
+  points_alert FLOAT        NOT NULL
   COMMENT '午安影视积分',
   created_at   TIMESTAMP,
   PRIMARY KEY (id)
 )
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin
+  COMMENT = '积分兑换记录表';
+
+-- 子应用积分系统详情表
+CREATE TABLE app_point_detail
+(
+  id            int PRIMARY KEY              NOT NULL
+  COMMENT '标识id' AUTO_INCREMENT,
+  name          varchar(20) COLLATE utf8_bin NOT NULL UNIQUE
+  COMMENT '应用名',
+  exchange_rate float                        NOT NULL
+  COMMENT '兑换汇率',
+  address       varchar(255)                 NOT NULL
+  COMMENT '该应用的地址'
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin
+  COMMENT = '子应用积分系统详情表';
