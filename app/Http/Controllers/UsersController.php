@@ -185,7 +185,7 @@ class UsersController extends Controller
         $id_token = $request->get('id-token');
         try {
             if ($id != $id_token->uid) {
-                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
+                throw new \Exception('Illegal request,user id does not match the token id', 400);
             }
             if (empty($request->only(
                 [
@@ -195,7 +195,7 @@ class UsersController extends Controller
                     'birthday'
                 ]))
             ) {
-                return response(['error' => '没有要修改的内容'], 400);
+                return response(['error' => 'Nothing to change'], 400);
             }
             DB::beginTransaction();
             if (isset($request->name)) {

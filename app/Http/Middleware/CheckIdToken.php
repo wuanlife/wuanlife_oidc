@@ -21,7 +21,7 @@ class CheckIdToken
             // 检测 ID-Token 是否存在
             $id_token = $request->header(AuthController::ID_TOKEN_KEY);
             if (!$id_token) {
-                return response(['error' => '缺少ID-Token'], 401);
+                return response(['error' => 'Lack ID-Token'], 401);
             }
             // 检测 ID-Token 合法性
             $data = JwtVerifier::verifyToken($id_token, 'ID');
