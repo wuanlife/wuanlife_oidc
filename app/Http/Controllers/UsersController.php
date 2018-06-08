@@ -33,7 +33,7 @@ class UsersController extends Controller
             // 验证参数完整性
             $validator = Validator::make($request->all(),
                 [
-                    'name' => 'bail|required|string|alpha_dash',
+                    'name' => 'bail|required|string|alpha_dash|regex:/^[a-zA-Z0-9_\x{4e00}-\x{9fa5}]+$/u',
                     'email' => 'bail|required|string|email',
                     'password' => 'bail|required|string|between:6,20',
                     'client_id' => 'required'
