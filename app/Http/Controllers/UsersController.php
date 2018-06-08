@@ -35,7 +35,7 @@ class UsersController extends Controller
                 [
                     'name' => 'bail|required|string|alpha_dash',
                     'email' => 'bail|required|string|email',
-                    'password' => 'bail|required|string|between:6,20|alpha_dash',
+                    'password' => 'bail|required|string|between:6,20',
                     'client_id' => 'required'
 
                 ]);
