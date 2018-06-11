@@ -113,6 +113,8 @@ class PointsController extends Controller
 
         DB::beginTransaction();
         try {
+            WuanPoints::find($id)->increment('points', $sub_point);
+
             $client = new Client(['base_uri' => $url]);
             $response = $client->request('PUT', "api/app/users/{$id}/points", [
                     'headers' => [
@@ -122,10 +124,8 @@ class PointsController extends Controller
                     'json' => $param,
                 ]
             );
-            if ($response->getStatusCode() == 204) {
-                WuanPoints::find($id)->increment('points', $sub_point);
-            } else {
-                return response(['error' => 'Fail to exchange points:' . $response->getBody()->getContents()]);
+            if ($response->getStatusCode() != 204) {
+                throw new \Exception('Fail to exchange points:' . $response->getBody()->getContents());
             }
 
             DB::commit();
