@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS users_base
   COMMENT '注册时间',
   PRIMARY KEY (id),
   KEY login_index(email, password),
-  UNIQUE KEY (name)
+  UNIQUE KEY (name),
+  UNIQUE KEY (email)
 )
   ENGINE = InnoDB
   DEFAULT CHARSET = utf8
