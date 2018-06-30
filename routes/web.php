@@ -22,3 +22,13 @@ Route::get('/authorize', function () {
 Route::get('/signup', function () {
     return view('index');
 });
+
+//Route::post('/api/email',"ResetPassword@sendEmail");//申请通过邮箱找回密码
+//Route::post('/api/users/{id}/password',"ResetPassword@resetPassword");//重置密码
+//Route::post('/api/auth/password',"ResetPassword@tokenVerification");//验证token是否过期
+//Route::put('/api/users/{id}/password','ResetPassword@modifyPassword')->
+//middleware('check_id_token');//修改密码
+
+Route::get('/users/reset_psd',function (){
+    return view('ResetPassword');
+})->name('reset_password');

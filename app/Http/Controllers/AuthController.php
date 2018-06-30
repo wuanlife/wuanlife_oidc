@@ -32,9 +32,9 @@ class AuthController extends Controller
                 JwtVerifier::verifyToken($id_token, 'ID');
             }
             if (!$access_token && !$id_token) {
-                throw new \Exception ('缺少必要参数');
+                return response(['error' => 'Miss required token param']);
             }
-            return \response(['success' => '验证成功'], 200);
+            return \response(['success' => 'Verify successfully'], 200);
         } catch (\Exception $exception) {
             return \response(['error' => $exception->getMessage()], 400);
         }
@@ -56,7 +56,6 @@ class AuthController extends Controller
                 $request->only(JwtVerifier::ACCESS_REQUEST_PARAMS),
                 60 * 60 * 24 * 7
             );
-
             return response(['Access-Token' => $access_token]);
         } catch (\Exception $exception) {
             return response(['error' => $exception->getMessage()], 400);

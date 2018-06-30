@@ -9,13 +9,15 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\Users\{
-    Avatar, SexDetail, User, UserDetail
-};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Points\WuanPoints;
+use App\Models\Users\{
+    Avatar, SexDetail, UsersBase, UserDetail
+};
+use Illuminate\Support\Facades\{
+    Cookie, DB, Validator
+};
+
 
 class UsersController extends Controller
 {
@@ -31,22 +33,23 @@ class UsersController extends Controller
             // 验证参数完整性
             $validator = Validator::make($request->all(),
                 [
-                    'name' => 'bail|required|string|alpha_dash',
+                    'name' => 'bail|required|string|regex:/^[a-zA-Z0-9_\x{4e00}-\x{9fa5}]+$/u',
                     'email' => 'bail|required|string|email',
-                    'password' => 'bail|required|string|between:6,20|alpha_dash',
+                    'password' => 'bail|required|string|between:6,20',
                     'client_id' => 'required'
 
                 ]);
             if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first(), 422);
-            } elseif (User::where('email', '=', $request->post('email'))->first()) {
-                throw new \Exception('该邮箱已注册', 400);
-            } elseif (User::where('name', '=', $request->post('name'))->first()) {
-                throw new \Exception('该用户名已被注册', 400);
+                return response(['error' => $validator->errors()->first()], 422);
+            } elseif (UsersBase::where('email', '=', $request->post('email'))->first()) {
+                return response(['error' => 'Email address already exists'], 400);
+            } elseif (UsersBase::where('name', '=', $request->post('name'))->first()) {
+                return response(['error' => 'Username already exists'], 400);
             }
 
+            DB::beginTransaction();
             // 注册用户信息
-            $user = User::create([
+            $user = UsersBase::create([
                 'name' => $request->post('name'),
                 'email' => $request->post('email'),
                 'password' => md5($request->post('password')),
@@ -57,10 +60,16 @@ class UsersController extends Controller
             ]);
             Avatar::create([
                 'user_id' => $user->id,
-                'url' => env('AVATAR-URL', ' ')
+                'url' => env('AVATAR_URL', ' ')
             ]);
+            WuanPoints::create([
+                'user_id' => $user->id,
+                'points' => 0,
+            ]);
+            DB::commit();
             if (!$user) {
-                throw new \Exception('创建用户失败', 400);
+                DB::rollBack();
+                return response(['error' => 'Failed to register'], 400);
             }
 
             $id_token = JwtVerifier::makeIdToken(
@@ -73,20 +82,10 @@ class UsersController extends Controller
                     'aud' => $request->get('client_id')
                 ]
             );
-
             // 注册成功，返回重定向信息
-            return
-                response(['ID-Token' => $id_token]);
-//                    ->withCookie(
-//                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
-//                    );
-
+            return response(['ID-Token' => $id_token]);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -102,26 +101,26 @@ class UsersController extends Controller
             $validator = Validator::make($request->all(),
                 [
                     'email' => 'bail|required|string|email',
-                    'password' => 'bail|required|string|between:6,20|alpha_dash',
+                    'password' => 'bail|required|string|between:6,20',
                     'client_id' => 'required'
 
                 ]);
             if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first(), 422);
+                return response(['error' => $validator->errors()->first()], 422);
             }
 
             // 判断用户名和密码是否正确
             $email = $request->post('email');
-            $user = User::select(['id', 'name', 'email', 'password'])
+            $user = UsersBase::select(['id', 'name', 'email', 'password'])
                 ->where('email', '=', $email)
                 ->first();
             if (!$user) {
 
-                throw new \Exception('用户不存在', 400);
+                return response(['error' => 'User does not exist'], 422);
             }
             if ($user->password != md5($request->post('password'))) {
 
-                throw new \Exception('密码不正确', 400);
+                return response(['error' => 'Incorrect password'], 400);
             }
 
             // 生成 JWT-Token
@@ -135,19 +134,10 @@ class UsersController extends Controller
                     'aud' => $request->get('client_id')
                 ]
             );
-
             // 登陆成功，设置 cookie 并返回重定向请求
-            return
-                response(['ID-Token' => $id_token]);
-//                    ->withCookie(
-//                        Cookie::make('wuan-id-token', $id_token, 60 * 60 * 24 * 7)
-//                    );
+            return response(['ID-Token' => $id_token]);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -163,9 +153,9 @@ class UsersController extends Controller
         $as_token = $request->get('access-token');
         try {
             if ($id != $id_token->uid) {
-                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
+                return response(['error' => 'Illegal request,user id do not match this token'], 403);
             }
-            $user = User::find($id);
+            $user = UsersBase::find($id);
             $scope = array_flip(explode(',', $as_token->scope));
             if (isset($scope['public_profile'])) {
                 return response([
@@ -180,39 +170,7 @@ class UsersController extends Controller
                 return response([], 200);
             }
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
-        }
-    }
-
-    /**
-     * 向午安应用服务器返回用户信息
-     * @param $id
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
-     */
-    public function responseUserInfoToApp($id)
-    {
-        try {
-            //$token = $request->get('token');
-            //$this->verifyAppToken($token);
-            $user = User::find($id);
-            if (!$user) {
-                throw new \Exception('用户信息不存在', 400);
-            }
-            return response([
-                'id' => $user['id'],
-                'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? env('AVATAR_URL'),
-                'name' => $user->name,
-            ], 200);
-        } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -227,7 +185,7 @@ class UsersController extends Controller
         $id_token = $request->get('id-token');
         try {
             if ($id != $id_token->uid) {
-                throw new \Exception('非法请求，用户ID与令牌ID不符', 400);
+                throw new \Exception('Illegal request,user id does not match the token id', 400);
             }
             if (empty($request->only(
                 [
@@ -237,22 +195,22 @@ class UsersController extends Controller
                     'birthday'
                 ]))
             ) {
-                throw new \Exception('没有要修改的内容', 400);
+                return response(['error' => 'Nothing to change'], 400);
             }
             DB::beginTransaction();
             if (isset($request->name)) {
-                if (User::where('name', '=', $request->post('name'))->first()) {
-                    throw new \Exception('该用户名已被注册', 400);
+                if (UsersBase::where('name', '=', $request->post('name'))->first()) {
+                    return response(['error' => 'Username already exists'], 400);
                 }
-                User::where('id', '=', $id)->update(['name' => $request->name]);
+                UsersBase::where('id', '=', $id)->update(['name' => $request->name]);
             }
             if (isset($request->avatar_url)) {
                 Avatar::where('user_id', $id)->where('delete_flg', 0)->update(['delete_flg' => '1']);
                 Avatar::create(['user_id' => $id, 'url' => $request->avatar_url]);
             }
             if (isset($request->sex)) {
-                if ($a = SexDetail::where('id', $request->sex)->first()) {
-                    throw new \Exception('非法请求，错误的性别类型', 400);
+                if (!SexDetail::where('id', $request->sex)->first()) {
+                    return response(['error' => 'Illegal request,error type of sex'], 422);
                 }
                 UserDetail::where('id', '=', $id)->update(['sex' => $request->sex]);
             }
@@ -260,14 +218,10 @@ class UsersController extends Controller
                 UserDetail::where('id', '=', $id)->update(['birthday' => $request->birthday]);
             }
             DB::commit();
-            return response(['success' => '修改成功'], 200);
+            return response(['success' => 'Successfully modified'], 200);
         } catch (\Exception $exception) {
             DB::rollback();
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 
@@ -278,29 +232,12 @@ class UsersController extends Controller
     public function logout()
     {
         try {
-            return response(['success' => '退出登录成功'], 200)
+            return response(['success' => 'Logout successful'], 200)
                 ->withCookie(Cookie::forget('wuan-access-token'))
                 ->withCookie(Cookie::forget('wuan-id-token'));
         } catch (\Exception $exception) {
-            return response(['error' => '退出登录失败'], 400);
+            return response(['error' => 'Failed to logout'], 400);
         }
     }
 
-
-    /**
-     * 验证用户的授权token
-     * @param $token
-     * @throws \Exception
-     */
-    private function verifyAppToken($token)
-    {
-        $key = env('WUAN_APP_KEY');
-        $info = explode('.', $token);
-        if (count($info) !== 2) {
-            throw new \Exception('无效token', 400);
-        }
-        if (crypt(base64_decode($info[0]), $key) == base64_decode($info[1])) {
-            throw new \Exception('无效token', 400);
-        }
-    }
 }

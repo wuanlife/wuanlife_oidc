@@ -53,11 +53,11 @@ class JwtVerifier extends Controller
                 $params = self::ID_TOKEN_PARAMS;
                 break;
             default:
-                throw new \Exception('错误的Token类型', 400);
+                throw new \Exception('Error type of token');
         }
         foreach ($params as $item) {
             if (empty($data->$item)) {
-                throw new \Exception($type . '-Token完整性验证失败', 400);
+                throw new \Exception($type . '-Token integrity verification failed');
             }
         }
         self::verifyExp($data->exp);
@@ -71,7 +71,7 @@ class JwtVerifier extends Controller
     private static function verifyExp($exp)
     {
         if (time() > $exp) {
-            throw new Exception('Token已过期，请重新获取', 400);
+            throw new Exception('Token expire', 400);
         }
     }
 
@@ -89,14 +89,14 @@ class JwtVerifier extends Controller
         $params = self::ACCESS_TOKEN_PARAMS;
         foreach ($params as $item) {
             if (empty($data[$item])) {
-                throw new \Exception('缺少必要项：' . $item, 400);
+                throw new \Exception('Required param missing: ' . $item);
             }
             $params[$item] = $data[$item];
         }
         try {
             return JWT::encode($params, env('JWT_SECRET'), 'HS256');
         } catch (\Exception $exception) {
-            return response(['error' => '生成Access-Token失败'], 400);
+            return response(['error' => 'Failed to generate Access-Token']);
         }
     }
 
@@ -114,13 +114,13 @@ class JwtVerifier extends Controller
 
         foreach (self::ID_TOKEN_PARAMS as $item) {
             if (empty($data[$item])) {
-                throw new \Exception('缺少必要项：' . $item, 400);
+                throw new \Exception('Required param missing: ' . $item);
             }
         }
         try {
             return JWT::encode($data, env('JWT_SECRET'), 'HS256');
         } catch (\Exception $exception) {
-            throw new \Exception('生成Access-Token失败', 400);
+            throw new \Exception('Failed to generate Access-Token');
         }
     }
 

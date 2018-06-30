@@ -11,11 +11,12 @@ CREATE TABLE IF NOT EXISTS users_base
   COMMENT '用户密码',
   updated_at TIMESTAMP default CURRENT_TIMESTAMP                    NOT NULL
   COMMENT '修改时间',
-  created_at TIMESTAMP                                              NOT NULL
+  created_at TIMESTAMP default CURRENT_TIMESTAMP                    NOT NULL
   COMMENT '注册时间',
   PRIMARY KEY (id),
   KEY login_index(email, password),
-  UNIQUE KEY (name)
+  UNIQUE KEY (name),
+  UNIQUE KEY (email)
 )
   ENGINE = InnoDB
   DEFAULT CHARSET = utf8
@@ -110,10 +111,11 @@ CREATE TABLE IF NOT EXISTS auth_detail
 -- 找回密码表
 CREATE TABLE IF NOT EXISTS reset_password
 (
-  user_id INT UNSIGNED NOT NULL
+  user_id    INT UNSIGNED                        NOT NULL
   COMMENT '用户id',
-  token   VARCHAR(255) COLLATE utf8_bin COMMENT '验证token',
-  exp     TIMESTAMP    NOT NULL
+  token      VARCHAR(255) COLLATE utf8_bin COMMENT '验证token',
+  created_at TIMESTAMP default CURRENT_TIMESTAMP NOT NULL,
+  exp        TIMESTAMP default CURRENT_TIMESTAMP NOT NULL
   COMMENT '过期时间',
   PRIMARY KEY (user_id)
 )
@@ -123,11 +125,11 @@ CREATE TABLE IF NOT EXISTS reset_password
   COMMENT = '找回密码表';
 
 -- 午安积分表
-CREATE TABLE IF NOT EXISTS wuan_score
+CREATE TABLE IF NOT EXISTS wuan_points
 (
-  user_id INT UNSIGNED NOT NULL
+  user_id INT UNSIGNED   NOT NULL
   COMMENT '用户id',
-  score INT UNSIGNED NOT NULL DEFAULT 0
+  points  FLOAT UNSIGNED NOT NULL DEFAULT 0
   COMMENT '午安积分',
   PRIMARY KEY (user_id)
 )
@@ -135,3 +137,36 @@ CREATE TABLE IF NOT EXISTS wuan_score
   DEFAULT CHARSET = utf8
   COLLATE = utf8_bin
   COMMENT = '午安积分表';
+
+-- 积分兑换记录表
+CREATE TABLE IF NOT EXISTS points_order
+(
+  id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id      INT UNSIGNED NOT NULL
+  COMMENT '用户id',
+  points_alert FLOAT        NOT NULL
+  COMMENT '午安影视积分',
+  created_at   TIMESTAMP,
+  PRIMARY KEY (id)
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin
+  COMMENT = '积分兑换记录表';
+
+-- 子应用积分系统详情表
+CREATE TABLE app_point_detail
+(
+  id            int PRIMARY KEY              NOT NULL
+  COMMENT '标识id' AUTO_INCREMENT,
+  name          varchar(20) COLLATE utf8_bin NOT NULL UNIQUE
+  COMMENT '应用名',
+  exchange_rate float                        NOT NULL
+  COMMENT '兑换汇率',
+  address       varchar(255)                 NOT NULL
+  COMMENT '该应用的地址'
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COLLATE = utf8_bin
+  COMMENT = '子应用积分系统详情表';

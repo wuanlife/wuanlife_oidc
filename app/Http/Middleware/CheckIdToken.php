@@ -21,17 +21,13 @@ class CheckIdToken
             // 检测 ID-Token 是否存在
             $id_token = $request->header(AuthController::ID_TOKEN_KEY);
             if (!$id_token) {
-                throw new \Exception('缺少ID-Token', 400);
+                return response(['error' => 'Lack ID-Token'], 401);
             }
             // 检测 ID-Token 合法性
             $data = JwtVerifier::verifyToken($id_token, 'ID');
             $request->attributes->add(['id-token' => $data]);
         } catch (\Exception $exception) {
-            if ($exception->getCode() <= 300 || $exception->getCode() > 510) {
-                return response(['error' => $exception->getMessage()], 400);
-            } else {
-                return response(['error' => $exception->getMessage()], $exception->getCode());
-            }
+            return response(['error' => $exception->getMessage()], 400);
         }
 
         return $next($request);
