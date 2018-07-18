@@ -21,31 +21,33 @@ class PointsController extends Controller
      */
     public function getList($id, Request $request)
     {
-        $list = AppPointDetail::all();
-        $res = [];
-        $param = Builder::getParam();
-        foreach ($list as $item) {
-            try {
-                $client = new Client(['base_uri' => $item->address]);
-                $response = $client->request('GET', "api/app/users/{$id}/points", [
-                        'headers' => [
-                            'ID-Token' => $request->header('ID-Token'),
-                            'Access-Token' => $request->header('Access-Token'),
-                        ],
-                        'json' => $param,
-                    ]
-                );
-            } catch (\Exception $e) {
-                return response(['error' => $e->getMessage()]);
+        try {
+            if ($request->get('id-token')->uid != $id) {
+                throw new \Exception('Illegal request,user id does not match the token id.');
             }
-            $json = $response->getBody()->getContents();
-            $points = \json_decode($json)->points;
-            $res[] = [
-                'id' => $item->id,
-                'name' => $item->name,
-                'exchange_rate' => $item->exchange_rate,
-                'points' => $points,
-            ];
+            $list = AppPointDetail::all();
+            $res = [];
+            foreach ($list as $item) {
+                $response = Builder::requestInnerApi(
+                    $item->address,
+                    "/api/app/users/{$id}/points", 'GET',
+                    [
+                        'ID-Token' => $request->header('ID-Token'),
+                        'Access-Token' => $request->header('Access-Token'),
+                    ]);
+
+
+                $json = $response['contents'];
+                $points = \json_decode($json)->points;
+                $res[] = [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'exchange_rate' => $item->exchange_rate,
+                    'points' => $points,
+                ];
+            }
+        } catch (\Exception $e) {
+            return response(['error' => $e->getMessage()]);
         }
         return response(['app' => $res], 200);
     }
@@ -103,28 +105,24 @@ class PointsController extends Controller
             return response(['error' => 'Illegal request,the requested app does not have point system.'], 404);
         }
 
-        // 获取子系统地址和汇率
-        $url = $app->address;
-        $exchange_rate = $app->exchange_rate;
-        $param = Builder::getParam([
-            'sub_points' => $sub_point * $exchange_rate,
-            'action' => 'decrement',
-        ]);
-
         DB::beginTransaction();
         try {
             WuanPoints::find($id)->increment('points', $sub_point);
 
-            $client = new Client(['base_uri' => $url]);
-            $response = $client->request('PUT', "api/app/users/{$id}/points", [
-                    'headers' => [
-                        'ID-Token' => $request->header('ID-Token'),
-                        'Access-Token' => $request->header('Access-Token'),
-                    ],
-                    'json' => $param,
+            $response = Builder::requestInnerApi(
+                $app->address,
+                "/api/app/users/{$id}/points",
+                'PUT',
+                [
+                    'ID-Token' => $request->header('ID-Token'),
+                    'Access-Token' => $request->header('Access-Token'),
+                ],
+                [
+                    'sub_points' => $sub_point * $app->exchange_rate,
+                    'action' => 'decrement',
                 ]
             );
-            if ($response->getStatusCode() != 204) {
+            if ($response['status_code'] != 204) {
                 throw new \Exception('Fail to exchange points:' . $response->getBody()->getContents());
             }
 
