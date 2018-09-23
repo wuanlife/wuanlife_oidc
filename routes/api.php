@@ -78,6 +78,8 @@ Route::group([
     Route::get('/app/users/{id}', 'InteriorCommunication@responseUserInfoToApp')->where('id', '[0-9]+');
     // 通过用户 email 获取用户 id 接口
     Route::get('/app/users/email/{email}', 'InteriorCommunication@getEmailById')->where('id', '[0-9]+');
+    // 搜索用户 接口
+    Route::get('/app/users/search', 'InteriorCommunication@search');
 });
 
 
