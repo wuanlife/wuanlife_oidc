@@ -55,7 +55,7 @@ class UsersController extends Controller
                 'password' => md5($request->post('password')),
             ]);
             UserDetail::create([
-                'sex' => 'male',
+                'sex' => 'secrecy',
                 'birthday' => '1990-1-1'
             ]);
             Avatar::create([
