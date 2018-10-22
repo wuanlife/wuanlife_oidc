@@ -62,6 +62,8 @@ Route::group([
     Route::post('/users/register', 'UsersController@register');
     // U4 退出登录接口
     Route::post('/users/logout', 'UsersController@logout');
+    // U6 搜索用户
+    Route::post('/users/search', 'UsersController@search');
 });
 
 // 内部通信接口
