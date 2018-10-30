@@ -20,7 +20,7 @@ class InteriorCommunication extends Controller
         try {
             $user = UsersBase::find($id);
             if (!$user) {
-                throw new \Exception('User info not found', 400);
+                return response(['error' => 'User info not found'], 404);
             }
             return response([
                 'id' => $user['id'],
@@ -94,6 +94,37 @@ class InteriorCommunication extends Controller
             ], 200);
         } catch (\Exception $exception) {
             return response(['error' => $exception->getMessage()], 400);
+        }
+    }
+
+    /**
+     * 搜索用户
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function search(Request $request)
+    {
+        $limit =  $request->input('limit') ?? 20;
+        $offset = $request->input('offset') ?? 0;
+        $keyword = $request->input('keyword');
+
+        try {
+            $users = UsersBase::where('name', 'like', '%' . $keyword . '%')->paginate($limit, ['*'] ,'' , $offset);
+            if (!$users) {
+                return response(['users' => []], 200);
+            }
+
+            $res = [];
+            foreach ($users as $user) {
+                $res[] = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'avatar_url' => $user->avatar ? $user->avatar->url : '',
+                ];
+            }
+            return response(['users' => $res]);
+        } catch (\Exception $exception) {
+            return response(['error' => '搜索失败'], 400);
         }
     }
 }

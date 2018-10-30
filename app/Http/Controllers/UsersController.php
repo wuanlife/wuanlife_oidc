@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tacer
- * Date: 2018/3/11
- * Time: 20:52
- */
 
 namespace App\Http\Controllers;
 
@@ -14,6 +8,7 @@ use App\Models\Points\WuanPoints;
 use App\Models\Users\{
     Avatar, SexDetail, UsersBase, UserDetail
 };
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\{
     Cookie, DB, Validator
 };
@@ -55,7 +50,7 @@ class UsersController extends Controller
                 'password' => md5($request->post('password')),
             ]);
             UserDetail::create([
-                'sex' => 'male',
+                'sex' => 'secrecy',
                 'birthday' => '1990-1-1'
             ]);
             Avatar::create([
@@ -237,6 +232,40 @@ class UsersController extends Controller
                 ->withCookie(Cookie::forget('wuan-id-token'));
         } catch (\Exception $exception) {
             return response(['error' => 'Failed to logout'], 400);
+        }
+    }
+
+    /**
+     * U6 搜索用户
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function search(Request $request)
+    {
+        $keyword = $request->input('keyword') ?? '';
+        if (!$keyword) {
+            return response(['users' => [], 'total' => 0], Response::HTTP_OK);
+        }
+        $limit = $request->input('limit') ?? 10;
+        //每页显示数
+        $offset = $request->input('offset') ?? 0;   //每页起始数
+        $page = ($offset / $limit) + 1;
+        try {
+            $users = UsersBase::where('name', 'like', "%$keyword%")->paginate($limit, ['*'], '', $page);
+            if ($users->isEmpty()) {
+                return response(['users' => [], 'total' => 0], Response::HTTP_OK);
+            }
+            foreach($users as $user) {
+                $res['users'][] = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'avatar_url' => $user->avatar()->where('delete_flg', 0)->first()->url ?? null,
+                ];
+            }
+            $res['total'] = $users->total();
+            return response($res, 200);
+        } catch (\Exception $exception) {
+            return response(['error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
