@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fruits\WuanFruitLog;
 use App\Models\Fruits\WuanSign;
 use App\Models\Fruits\WuanFruit;
 use Illuminate\Http\Request;
@@ -108,6 +109,15 @@ class SigninController extends Controller
                 $new_num = $old_num+$value;
                 $fruit -> where('user_id', $user_id)
                        -> update(['value' => $new_num]);
+
+                // 新增获取记录
+                $new_log_info = [
+                    'scene' => 2,
+                    'user_id' => $user_id,
+                    'value' => $value,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                WuanFruitLog::create($new_log_info);
 
 
             } else {
