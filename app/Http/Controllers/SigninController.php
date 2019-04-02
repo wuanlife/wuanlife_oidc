@@ -21,9 +21,9 @@ class SigninController extends Controller
     public function signStatus($user_id, Request $request)
     {
         try {
-//            if ($request->get('id-token')->uid != $user_id) {
-//                throw new \Exception('Illegal request,user id does not match the token id.');
-//            }
+            if ($request->get('id-token')->uid != $user_id) {
+                throw new \Exception('Illegal request,user id does not match the token id.');
+            }
             $range_min = config ('signin.minNum');
             $range_max = config ('signin.maxNum');
 
@@ -70,9 +70,9 @@ class SigninController extends Controller
     public function sign($user_id, Request $request)
     {
         try {
-//            if ($request->get('id-token')->uid != $user_id) {
-//                throw new \Exception('Illegal request,user id does not match the token id.');
-//            }
+            if ($request->get('id-token')->uid != $user_id) {
+                throw new \Exception('Illegal request,user id does not match the token id.');
+            }
 
 
 
@@ -122,12 +122,9 @@ class SigninController extends Controller
 
                 });
 
-
-                
             } else {
                 return response(['error' => '今日已签到'], 400);
             }
-
 
 
             return response([
