@@ -18,8 +18,8 @@ class UsersController extends Controller
 {
 
     /**
-     * 注册接口
-     * @param Request $request
+     *
+     * @param Request $request注册接口
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function register(Request $request)
