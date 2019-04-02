@@ -18,4 +18,14 @@ CREATE TABLE `wuan_sign`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '签到记录表' ROW_FORMAT = Dynamic;
 
-SET FOREIGN_KEY_CHECKS = 1;
+-- ----------------------------
+-- Table structure for wuan_fruit_log
+-- ----------------------------
+CREATE TABLE `wuan_fruit_log`  (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `scene` tinyint(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT '场景：0未知，1基础，2签到',
+  `user_id` int(10) UNSIGNED NOT NULL COMMENT '用户id',
+  `value` int(10) UNSIGNED NOT NULL COMMENT '午安果数量',
+  `created_at` timestamp(0) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '午安果日志表' ROW_FORMAT = Dynamic;
