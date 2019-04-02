@@ -82,6 +82,10 @@ Route::group([
     Route::get('/app/users/email/{email}', 'InteriorCommunication@getEmailById')->where('id', '[0-9]+');
     // 搜索用户 接口
     Route::get('/app/users/search', 'InteriorCommunication@search');
+    // 获取午安账号午安果接口
+    Route::get('/app/users/{id}/fruit', 'InteriorCommunication@getUserFruit')->where('id', '[0-9]+');
+    // 兑换午安账号午安果接口
+    Route::put('/app/users/{id}/fruit', 'InteriorCommunication@putUserFruit')->where('id', '[0-9]+');
 });
 
 
