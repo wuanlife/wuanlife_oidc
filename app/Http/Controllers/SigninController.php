@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Fruits\WuanSign;
 use App\Models\Fruits\WuanFruit;
 use Illuminate\Http\Request;
+use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 
 class SigninController extends Controller
 {
@@ -71,7 +72,6 @@ class SigninController extends Controller
 //                throw new \Exception('Illegal request,user id does not match the token id.');
 //            }
 
-            $fruit = WuanFruit::find($user_id);
 
 
             $sign = WuanSign::where('user_id', $user_id)
@@ -100,21 +100,21 @@ class SigninController extends Controller
             if($is_sign==0){
                 $value = rand($range_min, $range_max);
                 $created_at = date('Y-m-d H:i:s', time());
-                $new_sign = WuanSign::create(['user_id' => $user_id, 'value'=>$value, 'created_at'=>$created_at]);
-                $new_sign->save();
+                WuanSign::create(['user_id' => $user_id, 'value'=>$value, 'created_at'=>$created_at]);
+            } else {
+                throw new \Exception('今日已签到');
             }
 
 
 
             return response([
                 'user_id'    => $user_id,
-                'value'      => $sign['value'],
-                'is_sign'    => $is_sign,
+                'value'      => $value
             ], 200);
 
 
         } catch (\Exception $exception) {
-            return response(['error' => $exception->getMessage()], 400);
+            return response(['error' => '今日已签到'], 400);
         }
     }
 }
