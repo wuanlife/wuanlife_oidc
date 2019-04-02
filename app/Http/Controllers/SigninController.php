@@ -97,12 +97,21 @@ class SigninController extends Controller
             $range_max = config ('signin.maxNum');
 
 
+
             if($is_sign==0){
                 $value = rand($range_min, $range_max);
                 $created_at = date('Y-m-d H:i:s', time());
                 WuanSign::create(['user_id' => $user_id, 'value'=>$value, 'created_at'=>$created_at]);
+
+                $fruit = WuanFruit::find($user_id);
+                $old_num = $fruit['value'];
+                $new_num = $old_num+$value;
+                $fruit -> where('user_id', $user_id)
+                       -> update(['value' => $new_num]);
+
+
             } else {
-                throw new \Exception('今日已签到');
+                return response(['error' => '今日已签到'], 400);
             }
 
 
