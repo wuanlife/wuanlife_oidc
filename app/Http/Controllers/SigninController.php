@@ -6,6 +6,7 @@ use App\Models\Fruits\WuanFruitLog;
 use App\Models\Fruits\WuanSign;
 use App\Models\Fruits\WuanFruit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 
 class SigninController extends Controller
@@ -101,25 +102,28 @@ class SigninController extends Controller
 
             if($is_sign==0){
                 $value = rand($range_min, $range_max);
-                $created_at = date('Y-m-d H:i:s', time());
-                WuanSign::create(['user_id' => $user_id, 'value'=>$value, 'created_at'=>$created_at]);
 
-                $fruit = WuanFruit::find($user_id);
-                $old_num = $fruit['value'];
-                $new_num = $old_num+$value;
-                $fruit -> where('user_id', $user_id)
-                       -> update(['value' => $new_num]);
+                //开启事务
+                DB::transaction(function() use ($value, $user_id){
+                    $user_sign_info = ['user_id' => $user_id, 'value'=>$value, 'created_at'=>date('Y-m-d H:i:s' )];
+                    WuanSign::create($user_sign_info);
 
-                // 新增获取记录
-                $new_log_info = [
-                    'scene' => 2,
-                    'user_id' => $user_id,
-                    'value' => $value,
-                    'created_at' => date('Y-m-d H:i:s')
-                ];
-                WuanFruitLog::create($new_log_info);
+                    //更新我的午安果数量
+                    WuanFruit::find($user_id)->increment('value', $value);
+
+                    // 新增获取记录
+                    $new_log_info = [
+                        'scene' => 2,
+                        'user_id' => $user_id,
+                        'value' => $value,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ];
+                    WuanFruitLog::create($new_log_info);
+
+                });
 
 
+                
             } else {
                 return response(['error' => '今日已签到'], 400);
             }
