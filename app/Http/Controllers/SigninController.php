@@ -25,16 +25,14 @@ class SigninController extends Controller
 
             $sign = WuanSign::where('user_id', $user_id)
                     ->orderBy('created_at', 'desc')
-                    ->get();
+                    ->get()
+                    ->first();
 
-            dd($sign);
+//            dd($sign);
 
-//            $sign_sort = $sign->sortByDesc('created_at');
-
-//            dd($sign_sort);
-//            if($sign==null){
-//                throw new \Exception('非法用户');
-//            }
+            if($sign==null){
+                throw new \Exception('非法用户');
+            }
 
             //获取今日0点的时间戳
             $nowtime = strtotime(date("Y-m-d", time()));
