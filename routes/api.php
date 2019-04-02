@@ -94,7 +94,7 @@ Route::put('/users/{id}/password', 'PasswordController@modify')->middleware('che
 // P4 验证 Email Token 合法性接口
 Route::post('/user/{id}/token_verify', 'PasswordController@tokenVerification')->where('id', '[0-9]+');
 
-Route::get('/users/{id}/wuan-fruit', 'FruitController@fruitsGet')->where('id', '[0-9]+');
+Route::get('/users/{id}/wuan_fruit', 'FruitController@fruitsGet')->where('id', '[0-9]+');
 
 Route::get('/users/{id}/wuan_sign_info', 'SigninController@signStatus')->where('id', '[0-9]+');
 

@@ -26,12 +26,8 @@ class SigninController extends Controller
 
             $sign = WuanSign::where('user_id', $user_id)
                     ->orderBy('created_at', 'desc')
-                    ->get()
                     ->first();
 
-            if($sign==null){
-                throw new \Exception('非法用户');
-            }
 
             //获取今日0点的时间戳
             $nowtime = strtotime(date("Y-m-d", time()));
@@ -39,8 +35,13 @@ class SigninController extends Controller
             //获取sign表中的时间转换位时间戳。
             $time = strtotime($sign['created_at']);
 
-            //判断今日是否签到 （今日0点时间大于sign中的时间，表示为签到，反之，已签到。）
-            $is_sign = $nowtime>$time ? 0 : 1;
+            if($sign==null){ //签到表中没有数据，刚注册的用户，未签到。
+                $is_sign = 0;
+            } else{
+                //判断今日是否签到 （今日0点时间大于sign中的时间，表示为签到，反之，已签到。）
+                $is_sign = $nowtime>$time ? 0 : 1;
+            }
+
 
 
             return response([
@@ -70,17 +71,13 @@ class SigninController extends Controller
 //                throw new \Exception('Illegal request,user id does not match the token id.');
 //            }
 
-            $user = WuanFruit::find($user_id);
+            $fruit = WuanFruit::find($user_id);
 
 
             $sign = WuanSign::where('user_id', $user_id)
                 ->orderBy('created_at', 'desc')
-                ->get()
                 ->first();
 
-            if($sign==null){
-                throw new \Exception('非法用户');
-            }
 
             //获取今日0点的时间戳
             $nowtime = strtotime(date("Y-m-d", time()));
@@ -88,14 +85,31 @@ class SigninController extends Controller
             //获取sign表中的时间转换位时间戳。
             $time = strtotime($sign['created_at']);
 
-            //判断今日是否签到 （今日0点时间大于sign中的时间，表示为签到，反之，已签到。）
-            $is_sign = $nowtime>$time ? 0 : 1;
+            if($sign==null){ //签到表中没有数据，刚注册的用户，未签到。
+                $is_sign = 0;
+            } else{
+                //判断今日是否签到 （今日0点时间大于sign中的时间，表示为签到，反之，已签到。）
+                $is_sign = $nowtime>$time ? 0 : 1;
+            }
+
+
+            $range_min = config ('signin.minNum');
+            $range_max = config ('signin.maxNum');
+
+
+            if($is_sign==0){
+                $value = rand($range_min, $range_max);
+                $created_at = date('Y-m-d H:i:s', time());
+                $new_sign = WuanSign::create(['user_id' => $user_id, 'value'=>$value, 'created_at'=>$created_at]);
+                $new_sign->save();
+            }
+
 
 
             return response([
-                'user_id' => $user_id,
-                'value' => $user['value'],
-                'is_sign' => $is_sign,
+                'user_id'    => $user_id,
+                'value'      => $sign['value'],
+                'is_sign'    => $is_sign,
             ], 200);
 
 

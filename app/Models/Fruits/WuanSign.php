@@ -11,6 +11,6 @@ class WuanSign extends Model
     protected $table = 'wuan_sign';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'user_id', 'value'
+        'user_id', 'value', 'created_at'
     ];
 }

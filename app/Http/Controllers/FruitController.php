@@ -23,7 +23,7 @@ class FruitController extends Controller
             $user = WuanFruit::find($id);
 
             return response([
-                'id' => $user['user_id'],
+                'user_id' => $user['user_id'],
                 'value' => $user['value']
             ], 200);
         } catch (\Exception $exception) {
