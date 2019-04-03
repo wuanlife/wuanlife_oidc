@@ -122,6 +122,11 @@ class SigninController extends Controller
 
                 });
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 05fd9f6b6a3a295805f1b3873d45a500092f7e09
             } else {
                 return response(['error' => '今日已签到'], 400);
             }
