@@ -18,7 +18,7 @@ class UsersController extends Controller
 {
 
     /**
-     * 注册接口
+     *注册接口
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
