@@ -62,7 +62,7 @@ class UsersController extends Controller
 //                'user_id' => $user->id,
 //                'points' => 0,
 //            ]);
-            WuanFruit::created([
+            WuanFruit::create([
                 'user_id' => $user->id
             ]);
             DB::commit();
