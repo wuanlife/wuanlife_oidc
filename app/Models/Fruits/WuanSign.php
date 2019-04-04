@@ -4,15 +4,13 @@ namespace App\Models\Fruits;
 
 use Illuminate\Database\Eloquent\Model;
 
-class WuanFruitLog extends Model
+class WuanSign extends Model
 {
+    //
     public $timestamps = false;
-    protected $table = 'wuan_fruit_log';
+    protected $table = 'wuan_sign';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'scene',
-        'user_id',
-        'value',
-        'created_at'
+        'user_id', 'value', 'created_at'
     ];
 }

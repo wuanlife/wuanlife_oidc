@@ -48,6 +48,13 @@ Route::group([
     // Q3 兑换积分
     Route::put('/users/{id}/points', 'PointsController@exchange')->where('id', '[0-9]+');
 
+    //获取午安果数量接口
+    Route::get('/users/{id}/wuan_fruit', 'FruitController@fruitsGet')->where('id', '[0-9]+');
+    //获取签到规则及当日签到状态接口
+    Route::get('/users/{id}/wuan_sign_info', 'SigninController@signStatus')->where('id', '[0-9]+');
+    //签到相关接口
+    Route::get('/users/{id}/wuan_sign', 'SigninController@sign')->where('id', '[0-9]+');
+
 });
 
 
@@ -64,6 +71,8 @@ Route::group([
     Route::post('/users/logout', 'UsersController@logout');
     // U6 搜索用户
     Route::post('/users/search', 'UsersController@search');
+
+
 });
 
 // 内部通信接口
