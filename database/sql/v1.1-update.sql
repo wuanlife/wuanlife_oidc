@@ -2,30 +2,30 @@
 -- Table structure for wuan_fruit
 -- ----------------------------
 CREATE TABLE `wuan_fruit`  (
-  `user_id` int(10) UNSIGNED NOT NULL COMMENT 'ÓÃ»§id',
-  `value` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Îç°²¹û',
+  `user_id` int(10) UNSIGNED NOT NULL COMMENT 'ç”¨æˆ·id',
+  `value` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'åˆå®‰æœ',
   PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'Îç°²¹û' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'åˆå®‰æœ' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wuan_sign
 -- ----------------------------
 CREATE TABLE `wuan_sign`  (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) UNSIGNED NOT NULL COMMENT 'ÓÃ»§id',
-  `value` int(10) UNSIGNED NOT NULL COMMENT '±¾´ÎÇ©µ½ÔùËÍµÄÎç°²¹ûÊıÁ¿',
-  `created_at` timestamp(0) NOT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '´´½¨Ê±¼ä',
+  `user_id` int(10) UNSIGNED NOT NULL COMMENT 'ç”¨æˆ·id',
+  `value` int(10) UNSIGNED NOT NULL COMMENT 'æœ¬æ¬¡ç­¾åˆ°èµ é€çš„åˆå®‰æœæ•°é‡',
+  `created_at` timestamp(0) NOT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT 'åˆ›å»ºæ—¶é—´',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'Ç©µ½¼ÇÂ¼±í' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'ç­¾åˆ°è®°å½•è¡¨' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wuan_fruit_log
 -- ----------------------------
 CREATE TABLE `wuan_fruit_log`  (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `scene` tinyint(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT '³¡¾°£º0Î´Öª£¬1»ù´¡£¬2Ç©µ½',
-  `user_id` int(10) UNSIGNED NOT NULL COMMENT 'ÓÃ»§id',
-  `value` int(10) UNSIGNED NOT NULL COMMENT 'Îç°²¹ûÊıÁ¿',
+  `scene` tinyint(2) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'åœºæ™¯ï¼š0æœªçŸ¥ï¼Œ1åŸºç¡€ï¼Œ2ç­¾åˆ°',
+  `user_id` int(10) UNSIGNED NOT NULL COMMENT 'ç”¨æˆ·id',
+  `value` int(10) UNSIGNED NOT NULL COMMENT 'åˆå®‰æœæ•°é‡',
   `created_at` timestamp(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'Îç°²¹ûÈÕÖ¾±í' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'åˆå®‰æœæ—¥å¿—è¡¨' ROW_FORMAT = Dynamic;

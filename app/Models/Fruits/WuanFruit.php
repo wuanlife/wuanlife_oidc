@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class WuanFruit extends Model
 {
-    //
     public $timestamps = false;
     protected $table = 'wuan_fruit';
     protected $primaryKey = 'user_id';

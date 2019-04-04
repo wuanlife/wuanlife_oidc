@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fruits\WuanFruit;
+use App\Models\Fruits\WuanFruitLog;
 use App\Models\Points\PointsOrder;
 use App\Models\Points\WuanPoints;
 use App\Models\Users\UsersBase;
@@ -125,6 +127,64 @@ class InteriorCommunication extends Controller
             return response(['users' => $res]);
         } catch (\Exception $exception) {
             return response(['error' => '搜索失败'], 400);
+        }
+    }
+
+    /**
+     * 获得午安果数量
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @author Mr.moe
+     * @date 2019/4/2 19:12
+     */
+    public function getUserFruit($id)
+    {
+        try {
+            $user = WuanFruit::find($id);
+            if(!empty($user)){
+                return response([
+                    'user_id' => $user['user_id'],
+                    'value' => $user['value']
+                ], 200);
+            }else{
+                return response(['用户不存在'], 404);
+            }
+        } catch (\Exception $exception) {
+            return response(['error' => $exception->getMessage()], 400);
+        }
+    }
+
+    /**
+     * 增加午安果数量
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @author Mr.moe
+     * @date 2019/4/2 19:14
+     */
+    public function putUserFruit($id, Request $request)
+    {
+        $sub_point = $request->input('sub_point');
+        if (!is_numeric($sub_point) || ($sub_point <= 0) || (floor($sub_point) != $sub_point)) {
+            return response(['error' => 'point must be integer'], 422);
+        }
+        try {
+            DB::transaction(function () use ($sub_point, $id) {
+                // 新增获取记录
+                $new_log_info = [
+                    'user_id' => $id,
+                    'value' => $sub_point,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                WuanFruitLog::create($new_log_info);
+
+                // 更新我的午安果数量
+                WuanFruit::find($id)->increment('value', $sub_point);
+            });
+
+            return response([], 204);
+        } catch (\Exception $exception) {
+            return response(['error' => $exception->getMessage()], 400);
         }
     }
 }
