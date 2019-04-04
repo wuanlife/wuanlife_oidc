@@ -19,4 +19,4 @@ INSERT INTO oidc.wuan_fruit_log (`scene`,`user_id`,`value`,`created_at`) SELECT 
 -- ----------------------------
 -- 影视积分转换,午安果变动记录
 -- ----------------------------
-INSERT INTO oidc.wuan_fruit_log (`scene`,`user_id`,`value`,`created_at`) SELECT 1,user_id,points*1000,current_timestamp() FROM movie.points where points > 0;
+INSERT INTO oidc.wuan_fruit_log (`scene`,`user_id`,`value`,`created_at`) SELECT 1,user_id,points*250,current_timestamp() FROM movie.points where points > 0;
